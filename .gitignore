@@ -1,0 +1,8 @@
+bin/
+obj/
+assets/*.aseprite
+assets/*.ase
+assets/*.tsx
+assets/*.tmx
+assets/.*
+.vs/
