@@ -1,0 +1,17 @@
+{
+  "Name": "Love Festival Default Dates",
+  "Author": "AvalonMFX",
+  "Version": "1.0.0",
+  "Description": "Adds 3 custom dates to Love Festival",
+  "UniqueID": "AvalonMFX.LoveFestivalDefaultDates",
+  "UpdateKeys": [], // when you release the mod, see https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks
+  "ContentPackFor": {
+    "UniqueID": "Pathoschild.ContentPatcher",
+  },
+  "Dependencies": [
+    {
+      "UniqueID": "AvalonMFX.LoveFestival",
+      "isRequired": true
+    }
+  ]
+}

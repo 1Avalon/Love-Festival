@@ -1,0 +1,16 @@
+{
+  "Format": "1.30.0",
+  "Changes": [
+    {
+      "Action": "EditData",
+      "Target": "AvalonMFX.LoveFestivalDates",
+      "LogName": "",
+      "Entries": {
+        "AvalonMFX.DefaultDates/CoffeeDate": {
+          "DateLetterContext": "Hi @... < ^I was wondering if you can tell me a bit about your experience on the farm. You seem to be putting much effort into it. Everyone is praising it so I am very curious. ^Would you like to meet me in the afternoon at Gus' place to have a coffee and tell me a bit about it? ^^-{{AvalonMFX.LoveFestival/DatePartner}}",
+          "AcceptingDateResponse": "Thank you so much, @$h.#$b#I am so excited.#$b#Meet me between 2pm and 5pm at Gus' place in {{AvalonMFX.LoveFestival/DaysUntilDate}} days."
+        }
+      }
+    }
+  ]
+}
