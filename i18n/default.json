@@ -72,7 +72,6 @@
   //Dates
   "LoveFestivalDates.Question": "Go on a date with {{npc}}?",
   "LoveFestivalDates.DateRejected": "Oh I understand...$s#$b#You're too busy with the farm.$s",
-  "LoveFestivalDates.Dates.BeachDateResponse": "Thank you so much @... I am so exited.$h#$b#Meet me at the beach tomorrow when the sun is about to settle.",
 
   //Letter Given Reactions
   "ReceiveLetterReaction.Flattered": "No way you chose me. I'm flattered$h",
