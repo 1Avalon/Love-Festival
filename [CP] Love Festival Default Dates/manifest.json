@@ -6,7 +6,7 @@
   "UniqueID": "AvalonMFX.LoveFestivalDefaultDates",
   "UpdateKeys": [], // when you release the mod, see https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks
   "ContentPackFor": {
-    "UniqueID": "Pathoschild.ContentPatcher",
+    "UniqueID": "Pathoschild.ContentPatcher"
   },
   "Dependencies": [
     {
