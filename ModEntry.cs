@@ -13,7 +13,6 @@ using SpaceShared.APIs;
 using Microsoft.VisualBasic;
 using System.Xml.Linq;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace LoveFestival
 {
@@ -23,6 +22,8 @@ namespace LoveFestival
         public static Mod instance;
 
         public static IModHelper modHelper;
+
+        public static string ModDateEntryKey = "AvalonMFX.LoveFestivalDates";
 
         public static Texture2D bgLoveLetter;
         public static Texture2D redRoseDebris;
@@ -56,6 +57,8 @@ namespace LoveFestival
         public static Random ModRandom;
 
         public static DateLetter dateLetter;
+
+        private List<DateLetter> dateLetters;
 
         public static bool ExecuteDateQuestion = false;
         public static void PushNPCDialogues(List<NPC> npcs, Farmer who)
@@ -151,15 +154,36 @@ namespace LoveFestival
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             var spacecore = Helper.ModRegistry.GetApi<ISpaceCoreApi>("spacechase0.SpaceCore");
+            var cpAPI = Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
+            cpAPI.RegisterToken(this.ModManifest, "DatePartner", () =>
+            {
+                if (datePartner == null)
+                    return null;
+
+                return new[] { datePartner.Name };
+            });
+            cpAPI.RegisterToken(this.ModManifest, "DayOfTheMonth", () =>
+            {
+                if (datePartner == null)
+                    return null;
+
+                return new[] { dateLetter.day.ToString() };
+            });
+            cpAPI.RegisterToken(this.ModManifest, "DaysUntilDate", () =>
+            {
+                if (datePartner == null)
+                    return null;
+
+                return new[] { (dateLetter.day - 13).ToString() };
+            });
             spacecore.AddEventCommand("showLoveLetter", typeof(ModEntry).GetMethod(nameof(showLoveLetter_command)));
             spacecore.AddEventCommand("askForDate", typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command)));
-            spacecore.AddEventCommand("showShootingStar", typeof(ModEntry).GetMethod(nameof(showShootingStar_command)));
             Monitor.Log("Game crashed due to Love Festival? Make sure to update to the newest version if you haven't done it yet. There are new bug fixes every update!", LogLevel.Warn);
         }
 
         public static void showLoveLetter_command(Event instance, GameLocation location, GameTime time, string[] split)
         {
-            if (Game1.activeClickableMenu is not LetterViewerMenu)
+            if (Game1.activeClickableMenu is not LetterViewerMenu || Game1.activeClickableMenu is DialogueBox) 
             {
                 ValentineMails loveLetters = new();
                 LoveLetter loveLetter;
@@ -176,8 +200,8 @@ namespace LoveFestival
                 {
                     List<LoveLetter> mails = loveLetters.mails;
                     int index = ModRandom.Next(0, mails.Count);
-                    if (Game1.player.isInventoryFull())
-                        index = 2; //money mail
+                    //if (Game1.player.isInventoryFull())
+                      //  index = 2; //money mail
                     loveLetter = mails[index];
                 }
                 string msg = loveLetter.Context.Replace("NPCNAME", authorName);
@@ -229,13 +253,6 @@ namespace LoveFestival
                 }));
             }
         }
-
-        public static void showShootingStar_command(Event instance, GameLocation location, GameTime time, string[] split)
-        {
-            Game1.fadeScreenToBlack();
-            Game1.spriteBatch.Begin();
-            Game1.spriteBatch.Draw(beachNightSky, Game1.viewportCenter.ToVector2(), new Rectangle(0, 0, 672, 5125), Color.White);
-        }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
             if (e.OldLocation.Name == "Temp" && Game1.Date.Season == "winter" && Game1.Date.DayOfMonth == 13 || e.OldLocation.Name == "Temp" && isValentinesFestival)
@@ -263,6 +280,7 @@ namespace LoveFestival
 
         private void OnSaveLoaded(object? sender, EventArgs e)
         {
+            ModDateManager.readContentPacks();
             npcs = getAllNPCs();
             foreach (var translation in Helper.Translation.GetTranslations())
             {
@@ -465,6 +483,10 @@ namespace LoveFestival
                     data["VEInvitationLetterWeek"] = I18n.Letter_WeekBefore();
                     data["VEInvitationLetterTomorrow"] = I18n.Letter_NextDay();
                 });
+            }
+            else if (e.NameWithoutLocale.IsEquivalentTo(ModDateEntryKey))
+            {
+                e.LoadFrom(() => new Dictionary<string, Dictionary<string, object>>(), AssetLoadPriority.Exclusive);
             }
         }
         private IDictionary<string, string> FestivalData()
