@@ -12,7 +12,11 @@
       "UniqueID": "spacechase0.JsonAssets"
     },
     {
-      "UniqueID":  "spacechase0.SpaceCore"
+      "UniqueID": "spacechase0.SpaceCore"
+    },
+    {
+      "UniqueID": "Pathoschild.ContentPatcher",
+      "isRequired": false
     }
   ]
 }
