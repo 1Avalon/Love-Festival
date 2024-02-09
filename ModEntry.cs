@@ -183,7 +183,8 @@ namespace LoveFestival
 
         public static void showLoveLetter_command(Event instance, GameLocation location, GameTime time, string[] split)
         {
-            if (Game1.activeClickableMenu is not LetterViewerMenu || Game1.activeClickableMenu is DialogueBox) 
+            IClickableMenu acm = Game1.activeClickableMenu;
+            if (acm is not LetterViewerMenu && acm is not ItemGrabMenu|| acm is DialogueBox) 
             {
                 ValentineMails loveLetters = new();
                 LoveLetter loveLetter;
