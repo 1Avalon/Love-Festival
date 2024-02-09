@@ -1,0 +1,17 @@
+{
+  "Name": "Shop Tile Framework for Love Festival",
+  "Author": "AvalonMFX",
+  "Version": "1.2.0",
+  "Description": "Adds the shop to the Love Festival",
+  "UniqueID": "AvalonMFX.LoveFestival.STF",
+  "ContentPackFor": {
+    "UniqueID": "Cherry.ShopTileFramework",
+    "MinimumVersion": "1.0.8"
+  },
+  "Dependencies": [
+    {
+      "UniqueID": "AvalonMFX.LoveFestival"
+    }
+  ],
+  "UpdateKeys": [ "Nexus:17819" ]
+}

@@ -1,0 +1,21 @@
+{
+  "Shops": [
+    {
+      "ShopName": "AvalonMFX.LoveFestivalShop",
+      "ShopPrice":  500,
+      "ItemStocks": [
+        {
+          "ItemType": "BigCraftable",
+          "StockPrice": 350,
+          "JAPacks": [ "AvalonMFX.JALoveFestival" ]
+        },
+        {
+          "ItemType": "Object",
+          "StockPrice": 1000,
+          "Stock": 3,
+          "JAPacks": [ "AvalonMFX.JALoveFestival" ]
+        }
+      ]
+    }
+  ]
+}

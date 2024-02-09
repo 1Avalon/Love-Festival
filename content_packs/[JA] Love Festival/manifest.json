@@ -1,0 +1,11 @@
+{
+  "Name": "[JA] Love Festival",
+  "Author": "AvalonMFX",
+  "Version": "1.2.0",
+  "Description": "Adds Items for the Love Festival",
+  "UniqueID": "AvalonMFX.JALoveFestival",
+  "UpdateKeys": [ "Nexus:17819" ],
+  "ContentPackFor": {
+    "UniqueID": "spacechase0.JsonAssets"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "Name": "Love Letter",
+  "Category": "ArtisanGoods",
+  "Description": "Counts as universal loved gift.",
+  "TranslationKey": "love-festival.love-letter",
+  "Edibility": -300,
+  "Price": 500,
+  "Recipe": null,
+  "isColored": false,
+  "GiftTastes": {
+    "Love": [ "Universal" ]
+  }
+}
