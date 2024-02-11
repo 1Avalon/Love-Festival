@@ -23,7 +23,7 @@ namespace LoveFestival
 
         public static IModHelper modHelper;
 
-        public static string ModDateEntryKey = "AvalonMFX.LoveFestivalDates";
+        public static readonly string modDateEntryKey = "AvalonMFX.LoveFestival/Dates";
 
         public static Texture2D bgLoveLetter;
         public static Texture2D redRoseDebris;
@@ -281,7 +281,6 @@ namespace LoveFestival
 
         private void OnSaveLoaded(object? sender, EventArgs e)
         {
-            ModDateManager.readContentPacks();
             npcs = getAllNPCs();
             foreach (var translation in Helper.Translation.GetTranslations())
             {
@@ -339,6 +338,7 @@ namespace LoveFestival
         }
         public static string getMainEvent()
         {
+            DateLetter.getRandomDateLetter();
             string commands = "";
 
             foreach (NPC npc in npcs)
@@ -485,9 +485,9 @@ namespace LoveFestival
                     data["VEInvitationLetterTomorrow"] = I18n.Letter_NextDay();
                 });
             }
-            else if (e.NameWithoutLocale.IsEquivalentTo(ModDateEntryKey))
+            else if (e.NameWithoutLocale.IsEquivalentTo(modDateEntryKey))
             {
-                e.LoadFrom(() => new Dictionary<string, Dictionary<string, object>>(), AssetLoadPriority.Exclusive);
+                e.LoadFrom(() => new Dictionary<string, ModDate>(), AssetLoadPriority.Exclusive);
             }
         }
         private IDictionary<string, string> FestivalData()
