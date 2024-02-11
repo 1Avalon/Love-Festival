@@ -1,6 +1,6 @@
 {
   "Name": "Love Letter",
-  "Description": "Counts as universal loved gift.",
+  "Description": "Counts as universal loved gift. This is not required for the letter during the event.",
   "TranslationKey": "love-festival.love-letter",
   "Edibility": -300,
   "Price": 500,
