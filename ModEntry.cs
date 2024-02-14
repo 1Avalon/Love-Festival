@@ -61,6 +61,8 @@ namespace LoveFestival
         private List<DateLetter> dateLetters;
 
         public static bool ExecuteDateQuestion = false;
+
+        public static string EventCommand;
         public static void PushNPCDialogues(List<NPC> npcs, Farmer who)
         {
             foreach (NPC npc in npcs)
@@ -157,24 +159,22 @@ namespace LoveFestival
             var cpAPI = Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
             cpAPI.RegisterToken(this.ModManifest, "DatePartner", () =>
             {
-                if (datePartner == null)
-                    return null;
+                Logger.Log_Info($"DatePartner {datePartner?.Name}");
+                if (datePartner != null)
+                    return new[] { datePartner.Name };
 
-                return new[] { datePartner.Name };
+                return null;
             });
             cpAPI.RegisterToken(this.ModManifest, "DayOfTheMonth", () =>
             {
-                if (datePartner == null)
-                    return null;
-
-                return new[] { dateLetter.day.ToString() };
+                return new[] { Game1.Date.DayOfMonth.ToString() };
             });
             cpAPI.RegisterToken(this.ModManifest, "DaysUntilDate", () =>
             {
-                if (datePartner == null)
-                    return null;
+                if (datePartner != null)
+                    return new[] { (dateLetter.day - 13).ToString() };
 
-                return new[] { (dateLetter.day - 13).ToString() };
+                return null;
             });
             spacecore.AddEventCommand("showLoveLetter", typeof(ModEntry).GetMethod(nameof(showLoveLetter_command)));
             spacecore.AddEventCommand("askForDate", typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command)));
@@ -218,7 +218,7 @@ namespace LoveFestival
         }
         public static void LoveFestival_AskForDate_command(Event instance, GameLocation location, GameTime time, string[] split)
         {
-
+            DateLetter.getRandomDateLetter();
             if (!ExecuteDateQuestion)
             {
                 ExecuteDateQuestion = true;
@@ -256,6 +256,7 @@ namespace LoveFestival
         }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
+            Logger.Log_Info(e.NewLocation.Name);
             if (e.OldLocation.Name == "Temp" && Game1.Date.Season == "winter" && Game1.Date.DayOfMonth == 13 || e.OldLocation.Name == "Temp" && isValentinesFestival)
             {
                 ExecuteDateQuestion = false;
@@ -276,6 +277,11 @@ namespace LoveFestival
             {
                 modHelper.GameContent.InvalidateCache(dateLetter.CachePath);
                 Debug.WriteLine("Invalidating Cache...");
+            }
+            else if (e.NewLocation.Name == "Temp" && Game1.Date.Season == "winter")
+            {
+                EventCommand = getMainEvent();
+                Logger.Log_Info("Loaded Main Event");
             }
         }
 
@@ -336,9 +342,8 @@ namespace LoveFestival
             return dialogues;
 
         }
-        public static string getMainEvent()
+        private string getMainEvent()
         {
-            DateLetter.getRandomDateLetter();
             string commands = "";
 
             foreach (NPC npc in npcs)
@@ -363,6 +368,7 @@ namespace LoveFestival
                     {
                         isGoingOnDate = true;
                         datePartner = npc;
+                        Logger.Log_Info(npc.Name);
                         Debug.WriteLine($"Going on Date with {npc.Name}");
                         commands += $"/warp {npc.Name} 39 38/move {npc.Name} 0 -11 0/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} 0 11 0/warp {npc.Name} -1000 -1000";
                         continue;

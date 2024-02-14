@@ -39,7 +39,7 @@ namespace LoveFestival
                 ModEntry.ExecuteDateQuestion = false;
                 if (ModEntry.chosenLoveLetterGifters.Count > 0)
                     ModEntry.chosenLoveLetterGifters.Clear();
-                string command = ModEntry.getMainEvent();
+                string command = ModEntry.EventCommand;
                 ValentineMails valentineMails = new();
                 foreach (NPC npc in ModEntry.chosenLoveLetterGifters)
                 {
