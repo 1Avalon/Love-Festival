@@ -61,8 +61,6 @@ namespace LoveFestival
         private List<DateLetter> dateLetters;
 
         public static bool ExecuteDateQuestion = false;
-
-        public static string EventCommand;
         public static void PushNPCDialogues(List<NPC> npcs, Farmer who)
         {
             foreach (NPC npc in npcs)
@@ -156,26 +154,6 @@ namespace LoveFestival
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             var spacecore = Helper.ModRegistry.GetApi<ISpaceCoreApi>("spacechase0.SpaceCore");
-            var cpAPI = Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
-            cpAPI.RegisterToken(this.ModManifest, "DatePartner", () =>
-            {
-                Logger.Log_Info($"DatePartner {datePartner?.Name}");
-                if (datePartner != null)
-                    return new[] { datePartner.Name };
-
-                return null;
-            });
-            cpAPI.RegisterToken(this.ModManifest, "DayOfTheMonth", () =>
-            {
-                return new[] { Game1.Date.DayOfMonth.ToString() };
-            });
-            cpAPI.RegisterToken(this.ModManifest, "DaysUntilDate", () =>
-            {
-                if (datePartner != null)
-                    return new[] { (dateLetter.day - 13).ToString() };
-
-                return null;
-            });
             spacecore.AddEventCommand("showLoveLetter", typeof(ModEntry).GetMethod(nameof(showLoveLetter_command)));
             spacecore.AddEventCommand("askForDate", typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command)));
             Monitor.Log("Game crashed due to Love Festival? Make sure to update to the newest version if you haven't done it yet. There are new bug fixes every update!", LogLevel.Warn);
@@ -186,26 +164,18 @@ namespace LoveFestival
             IClickableMenu acm = Game1.activeClickableMenu;
             if (acm is not LetterViewerMenu && acm is not ItemGrabMenu|| acm is DialogueBox) 
             {
-                ValentineMails loveLetters = new();
-                LoveLetter loveLetter;
+                ModLetter letter;
                 string authorName = split[1].Split("_")[0];
                 if (datePartner != null && datePartner.Name == authorName && dateLetter == null)
                 {
-                    List<DateLetter> dates = loveLetters.dates;
-                    int index = ModRandom.Next(0, dates.Count);
-                    loveLetter = dates[index];
-                    dateLetter = loveLetter as DateLetter;
-                    dateLetter.DatePartner = datePartner;
+                    dateLetter = DateLetter.getRandomDateLetter(datePartner);
+                    letter = dateLetter;
                 }
                 else
                 {
-                    List<LoveLetter> mails = loveLetters.mails;
-                    int index = ModRandom.Next(0, mails.Count);
-                    //if (Game1.player.isInventoryFull())
-                      //  index = 2; //money mail
-                    loveLetter = mails[index];
+                    letter = LoveLetter.GetRandomLetter();
                 }
-                string msg = loveLetter.Context.Replace("NPCNAME", authorName);
+                string msg = letter.ContentWithAttachment().Replace("NPCNAME", authorName);
 
                 LetterViewerMenu menu = new LetterViewerMenu(msg, split[1]);
                 //LetterViewerMenu menu = new LetterViewerMenu(msg, split[1]);
@@ -218,7 +188,6 @@ namespace LoveFestival
         }
         public static void LoveFestival_AskForDate_command(Event instance, GameLocation location, GameTime time, string[] split)
         {
-            DateLetter.getRandomDateLetter();
             if (!ExecuteDateQuestion)
             {
                 ExecuteDateQuestion = true;
@@ -242,7 +211,7 @@ namespace LoveFestival
                             dateLetter.day = wrapper.day;
                             Debug.WriteLine(wrapper.day);
                             Debug.WriteLine($"Having date on day {dateLetter.day}");
-                            Game1.drawDialogue(npc, "YES OMG HAHA XDROFL33");
+                            Game1.drawDialogue(npc, dateLetter.Date.AcceptDateResponse);
                         };
                         Game1.activeClickableMenu = wrapper;
 
@@ -273,15 +242,11 @@ namespace LoveFestival
                     //spouse.setNewDialogue("I truly appreciate how you gave your didn't give me your love letter...$s");
                 }
             }
-            else if (dateLetter != null && e.NewLocation.Name == dateLetter.LocationName && Game1.Date.DayOfMonth == dateLetter.day)
+            else if (dateLetter != null && e.NewLocation.Name == dateLetter.Date.Location && Game1.Date.DayOfMonth == dateLetter.day)
             {
-                modHelper.GameContent.InvalidateCache(dateLetter.CachePath);
+                modHelper.GameContent.InvalidateCache($"Data\\Events\\{dateLetter.Date.Location}");
                 Debug.WriteLine("Invalidating Cache...");
-            }
-            else if (e.NewLocation.Name == "Temp" && Game1.Date.Season == "winter")
-            {
-                EventCommand = getMainEvent();
-                Logger.Log_Info("Loaded Main Event");
+                dateLetter = null;
             }
         }
 
@@ -342,7 +307,7 @@ namespace LoveFestival
             return dialogues;
 
         }
-        private string getMainEvent()
+        public static string getMainEvent()
         {
             string commands = "";
 
@@ -451,13 +416,13 @@ namespace LoveFestival
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Maps/LoveFestivalDateSky"))
                 e.LoadFromModFile<Map>("assets/LoveFestivalDateSky.tbin", AssetLoadPriority.Exclusive);
-            else if (dateLetter != null && e.NameWithoutLocale.IsEquivalentTo($"Data/{dateLetter.CachePath}"))
+            else if (dateLetter != null && e.NameWithoutLocale.IsEquivalentTo($"Data/Events/{dateLetter.Date.Location}"))
             {
                 e.Edit((IAssetData asset) =>
                 {
                     Debug.WriteLine("Adding Script...");
                     var data = asset.AsDictionary<string, string>().Data;
-                    foreach (var item in dateLetter.GenerateDateEventScript())
+                    foreach (var item in dateLetter.Date.EventScript)
                         data.Add(item);
                     dateLetter = null;
                 });
@@ -475,11 +440,7 @@ namespace LoveFestival
             {
                 e.Edit((IAssetData asset) =>
                 {
-                    DateLetter testLetter = new DateLetter("a", "Beach");
-                    testLetter.DatePartner = Game1.getCharacterFromName("Haley");
-                    var data = asset.AsDictionary<string, string>().Data;
-                    foreach (var item in testLetter.GenerateDateEventScript())
-                        data.Add(item);
+
                 });
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Data/mail"))
