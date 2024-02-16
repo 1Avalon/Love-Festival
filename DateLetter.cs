@@ -8,61 +8,33 @@ using System.Threading.Tasks;
 
 namespace LoveFestival
 {
-    public class DateLetter : LoveLetter
+    public class DateLetter : ModLetter
     {
 
         private static Dictionary<string, ModDate> modDates;
 
-        [Obsolete]
-        public static readonly Dictionary<string, ModDate> Dates = new(); //buffDict = SHelper.GameContent.Load<Dictionary<string, Dictionary<string, object>>>(dictKey);
-
-        [Obsolete]
-        public static readonly Dictionary<string, string> forks = new();
-
-        public new string Context { get; set; }
-        public string CachePath { get; set; }
-
-        public string LocationName { get; set; }
+        public int day;
 
         public NPC DatePartner;
 
-        public string DateEventScript;
+        public ModDate Date;
 
-        public int day;
-
-        public DateLetter(string context, string locationName) : base(context)
+        public DateLetter(ModDate date, NPC datePartner)
         {
-            this.Context = context;
-            this.CachePath = $"Events/{locationName}";
-            this.LocationName = locationName;
+            Date = date;
+            DatePartner = datePartner;
+            Content = date.DateLetterContent;
         }
 
-        public static DateLetter getRandomDateLetter()
+        public static DateLetter getRandomDateLetter(NPC datePartner)
         {
-            modDates ??= ModEntry.modHelper.GameContent.Load<Dictionary<string, ModDate>>(ModEntry.modDateEntryKey);
+            modDates ??= ModEntry.modHelper.GameContent.Load<Dictionary<string, ModDate>>(ModEntry.modDateEntryKey)
 
-            Logger.Log_Info(modDates.Keys.Count.ToString(), true);
+            int index = ModEntry.ModRandom.Next(modDates.Count);
+           
+            ModDate randomDate = modDates.ElementAt(index).Value;
 
-            return new DateLetter("abc", "aav"); //TODO use values from modDates as soon as theyre loaded
-        }
-
-        public Dictionary<string, string> GenerateDateEventScript()
-        {
-            ModDate date = Dates[LocationName];
-            string[] scriptForks = date.forks;
-            string eventScript = date.eventScript.Replace("NPCNAME", DatePartner.Name);
-            Dictionary<string, string> eventArguments = new Dictionary<string, string>();
-
-            foreach (var item in forks)
-            {
-                if (scriptForks.Contains(item.Key))
-                    eventArguments.Add(item.Key, item.Value.Replace("NPCNAME", DatePartner.Name));
-            }
-            eventArguments.Add(date.condition, eventScript);
-            Debug.WriteLine(eventArguments.Count);
-            return eventArguments;
-
-  
+            return new DateLetter(randomDate, datePartner); //TODO use values from modDates as soon as theyre loaded
         }
     }
 }
