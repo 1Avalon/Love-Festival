@@ -9,23 +9,15 @@ namespace LoveFestival
     public sealed class ModDate
     {
 
-        public string condition;
+        public string Condition;
 
-        public string eventScript;
+        public string Location;
 
-        public string mapName;
+        public Dictionary<string, string> EventScript = new Dictionary<string, string>();
 
-        public string[] forks;
+        public string DateLetterContent;
 
-        public string dateLetterContent;
+        public string AcceptDateResponse;
 
-        public string acceptingDateResponse;
-
-        public ModDate(string condition, string eventScript, params string[] forks)
-        {
-            this.condition = condition;
-            this.eventScript = eventScript;
-            this.forks = forks;
-        }
     }
 }
