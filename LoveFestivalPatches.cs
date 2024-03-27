@@ -15,6 +15,8 @@ namespace LoveFestival
     public static class LoveFestivalPatches
     {
         private static Color letterFontColor = new Color(0, 61, 40);
+
+        private static string festivalKey = "StartLoveFestivalKey";
         public static bool Prefix_CustomLetterBackgroundPatch(LetterViewerMenu __instance)
         {
             if (__instance.mailTitle is null) // secret note
@@ -30,6 +32,16 @@ namespace LoveFestival
         {
             if (__instance.letterTexture == ModEntry.bgLoveLetter)
                 __result = letterFontColor;
+        }
+
+        public static bool Prefix_setNewDialogue(NPC __instance, string translationKey)
+        {
+            if (translationKey == festivalKey)
+            {
+                __instance.setNewDialogue(new Dialogue(__instance, null, $"$q -1 null#{I18n.StartMessage_Question()}?#$r -1 0 yes#{I18n.StartMessage_AnswerYes()}#$r -1 0 no#{I18n.StartMessage_AnswerNo()}"));
+                return false;
+            }
+            return true;
         }
         public static void Postfix_LewisFestivalPatch(Event __instance, string id)
         {
@@ -62,7 +74,7 @@ namespace LoveFestival
                 //ModEntry.PushNPCDialogues(__instance.actors, __instance.farmer);
                 ModEntry.instance.Helper.Reflection.GetField<Dictionary<string, string>>(Game1.CurrentEvent, "festivalData").SetValue(festData);
                 ModEntry.instance.Helper.Reflection.GetField<NPC>(__instance, "festivalHost").SetValue(__instance.getActorByName("Lewis"));
-                ModEntry.instance.Helper.Reflection.GetField<string>(__instance, "hostMessageKey").SetValue($"$q -1 null#{I18n.StartMessage_Question()}?#$r -1 0 yes#{I18n.StartMessage_AnswerYes()}#$r -1 0 no#{I18n.StartMessage_AnswerNo()}");
+                ModEntry.instance.Helper.Reflection.GetField<string>(__instance, "hostMessageKey").SetValue(festivalKey);
             }
         }
         public static void Prefix_ForceFestivalContinuePatch(Event __instance, Farmer who)
