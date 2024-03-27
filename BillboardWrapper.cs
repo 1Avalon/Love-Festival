@@ -43,7 +43,7 @@ namespace LoveFestival
             foreach (ClickableTextureComponent calendarDay in calendarDays)
             {
                 counter++;
-                if (calendarDay.containsPoint(x, y) && counter > Game1.dayOfMonth && !Utility.isFestivalDay(counter, "winter"))
+                if (calendarDay.containsPoint(x, y) && counter > Game1.dayOfMonth && !Utility.isFestivalDay(counter, Season.Winter))
                 {
                     selectedDay = calendarDay;
                     day = counter;
