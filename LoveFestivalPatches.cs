@@ -14,6 +14,7 @@ namespace LoveFestival
 {
     public static class LoveFestivalPatches
     {
+        private static Color letterFontColor = new Color(0, 61, 40);
         public static bool Prefix_CustomLetterBackgroundPatch(LetterViewerMenu __instance)
         {
             if (__instance.mailTitle is null) // secret note
@@ -25,10 +26,10 @@ namespace LoveFestival
             }
             return true;
         }
-        public static void Postfix_FontColorPatch(LetterViewerMenu __instance, ref int __result)
+        public static void Postfix_FontColorPatch(LetterViewerMenu __instance, ref Color? __result)
         {
             if (__instance.letterTexture == ModEntry.bgLoveLetter)
-                __result = 10;
+                __result = letterFontColor;
         }
         public static void Postfix_LewisFestivalPatch(Event __instance, string id)
         {
@@ -61,7 +62,7 @@ namespace LoveFestival
                 //ModEntry.PushNPCDialogues(__instance.actors, __instance.farmer);
                 ModEntry.instance.Helper.Reflection.GetField<Dictionary<string, string>>(Game1.CurrentEvent, "festivalData").SetValue(festData);
                 ModEntry.instance.Helper.Reflection.GetField<NPC>(__instance, "festivalHost").SetValue(__instance.getActorByName("Lewis"));
-                ModEntry.instance.Helper.Reflection.GetField<string>(__instance, "hostMessage").SetValue($"$q -1 null#{I18n.StartMessage_Question()}?#$r -1 0 yes#{I18n.StartMessage_AnswerYes()}#$r -1 0 no#{I18n.StartMessage_AnswerNo()}");
+                ModEntry.instance.Helper.Reflection.GetField<string>(__instance, "hostMessageKey").SetValue($"$q -1 null#{I18n.StartMessage_Question()}?#$r -1 0 yes#{I18n.StartMessage_AnswerYes()}#$r -1 0 no#{I18n.StartMessage_AnswerNo()}");
             }
         }
         public static void Prefix_ForceFestivalContinuePatch(Event __instance, Farmer who)
@@ -80,7 +81,7 @@ namespace LoveFestival
                             if (npc.Name == who.spouse)
                                 ModEntry.seenSpouseDialogue = true;
 
-                            npc.CurrentDialogue.Push(new Dialogue(ModEntry.dialogueToBeReplaced, npc));
+                            npc.CurrentDialogue.Push(new Dialogue(npc, null, ModEntry.dialogueToBeReplaced));
                             npc.setNewDialogue(ModEntry.dialogueToBeReplaced);
                             //npc.setNewDialogue(Game1.content.LoadString("Strings\\StringsFromCSFiles:Event.cs.1736", npc.displayName), add: true); //Game1.content.LoadString("Strings\\StringsFromCSFiles:Event.cs.1736", npc.displayName)
                         }
@@ -96,14 +97,14 @@ namespace LoveFestival
         }
         public static void Postfix_DebrisDuringFestivalPatch(ref bool __result)
         {
-            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == "winter" && Game1.isFestival() || ModEntry.isValentinesFestival)
+            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival)
                 __result = true;
         }
         public static void Postfix_PopulateDebrisPatch(Game1 __instance)
         {
             if (!Context.IsWorldReady) return;
 
-            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == "winter" && Game1.isFestival() || ModEntry.isValentinesFestival) // perhaps use static field so the leaves will rain when getting to the festival although its not happening "natural"
+            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival) // perhaps use static field so the leaves will rain when getting to the festival although its not happening "natural"
             {
                 int num = Game1.random.Next(16, 64);
                 for (int i = 0; i < num; i++)
@@ -115,7 +116,7 @@ namespace LoveFestival
         }
         public static bool Prefix_CustomWeatherDebrisPatch(WeatherDebris __instance, ref SpriteBatch b)
         {
-            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == "winter" && Game1.isFestival() || ModEntry.isValentinesFestival)
+            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival)
             {
                 Texture2D texture = __instance.which == 2 ? ModEntry.redRoseDebris : ModEntry.greenRoseDebris;
 
@@ -127,7 +128,7 @@ namespace LoveFestival
         }
         public static void Postfix_CustomWeatherDebrisUpdatePatch(WeatherDebris __instance)
         {
-            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == "winter" && Game1.isFestival() || ModEntry.isValentinesFestival)
+            if (Game1.Date.DayOfMonth == 13 && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival)
             {
                 __instance.sourceRect.X = 0 + __instance.animationIndex * 16;
                 __instance.sourceRect.Y = 0;
