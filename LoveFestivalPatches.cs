@@ -71,26 +71,19 @@ namespace LoveFestival
             {
                 foreach (NPC npc in __instance.actors)
                 {
-                    if ((bool)npc.datable || who.spouse == npc.Name)
+                    if (!ModEntry.letterSent)
                     {
-                        //if (npc.CurrentDialogue.Count > 0 && npc.CurrentDialogue.Peek().getCurrentDialogue().Equals("..."))
-                        // npc.CurrentDialogue.Clear();
-                        //Debug.WriteLine(ModEntry.letterSent);
-                        if (npc.CurrentDialogue.Count == 0 && ModEntry.letterSent == false)
+                        if ((bool)npc.datable || who.spouse == npc.Name)
                         {
-                            if (npc.Name == who.spouse)
-                                ModEntry.seenSpouseDialogue = true;
-
-                            npc.CurrentDialogue.Push(new Dialogue(npc, null, ModEntry.dialogueToBeReplaced));
-                            npc.setNewDialogue(ModEntry.dialogueToBeReplaced);
-                            //npc.setNewDialogue(Game1.content.LoadString("Strings\\StringsFromCSFiles:Event.cs.1736", npc.displayName), add: true); //Game1.content.LoadString("Strings\\StringsFromCSFiles:Event.cs.1736", npc.displayName)
+                            if (npc.CurrentDialogue.Count > 0 && npc.CurrentDialogue.Peek().getCurrentDialogue().Equals(ModEntry.dialogueToBeReplaced))
+                            {
+                                npc.CurrentDialogue.Clear();
+                            }
+                            if (npc.CurrentDialogue.Count == 0)
+                            {
+                                npc.CurrentDialogue.Push(new Dialogue(npc, null, ModEntry.dialogueToBeReplaced));
+                            }
                         }
-                        /*
-                        else if (ModEntry.letterSent && npc.CurrentDialogue.Peek().temporaryDialogue == "...")
-                        {
-                            npc.CurrentDialogue.Clear();
-                        }
-                        */
                     }
                 }
             }
