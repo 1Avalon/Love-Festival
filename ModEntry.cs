@@ -65,6 +65,8 @@ namespace LoveFestival
         public static bool ExecuteDateQuestion = false;
 
         private bool isDateSaved = false;
+
+        public static readonly int festivalDate = 6;
         public static void PushNPCDialogues(List<NPC> npcs, Farmer who)
         {
             foreach (NPC npc in npcs)
@@ -164,7 +166,7 @@ namespace LoveFestival
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             Event.RegisterCommand("showLoveLetter", (EventCommandDelegate) Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(showLoveLetter_command))));
-            //Event.RegisterCommand("askForDate", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command))));
+            Event.RegisterCommand("askForDate", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command))));
             Monitor.Log("Game crashed due to Love Festival? Make sure to update to the newest version if you haven't done it yet. There are new bug fixes every update!", LogLevel.Warn);
         }
 
@@ -194,7 +196,7 @@ namespace LoveFestival
                 Game1.activeClickableMenu = menu;
             }
         }
-        public static void LoveFestival_AskForDate_command(Event instance, EventContext context, string[] split)
+        public static void LoveFestival_AskForDate_command(Event instance, string[] split, EventContext context)
         {
             if (!ExecuteDateQuestion)
             {
@@ -219,7 +221,9 @@ namespace LoveFestival
                             date = dateLetter.Date;
                             date.day = wrapper.day;
                             Debug.WriteLine($"Having date on day {date.day}");
-                            Game1.DrawDialogue(npc, date.AcceptDateResponse);
+                            Dialogue dialogue = new(npc, null, date.AcceptDateResponse);
+                            npc.CurrentDialogue.Push(dialogue);
+                            Game1.drawDialogue(npc);
                             instance.currentCommand++;
                         };
                         Game1.activeClickableMenu = wrapper;
@@ -228,7 +232,13 @@ namespace LoveFestival
                     }
 
                     else
-                        Game1.DrawDialogue(npc, I18n.LoveFestivalDates_DateRejected());
+                    {
+                        Dialogue dialogue = new Dialogue(npc, null, I18n.LoveFestivalDates_DateRejected());
+                        npc.CurrentDialogue.Push(dialogue);
+                        Game1.drawDialogue(npc);
+                    }
+                        
+                        //Game1.DrawDialogue(npc, null, I18n.LoveFestivalDates_DateRejected());
                 }));
             }
         }
@@ -245,7 +255,7 @@ namespace LoveFestival
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
             Logger.Log_Info(e.NewLocation.Name);
-            if (e.OldLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == 13 || e.OldLocation.Name == "Temp" && isValentinesFestival)
+            if (e.OldLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate || e.OldLocation.Name == "Temp" && isValentinesFestival)
             {
                 ExecuteDateQuestion = false;
                 chosenLoveLetterGifters.Clear();
@@ -351,14 +361,12 @@ namespace LoveFestival
                 if (chance == 9 || Game1.player.spouse == npc.Name)
                 {
                     chosenLoveLetterGifters.Add(npc);
-                    Debug.WriteLine(npc.Name);
                     string letterDialogue = getRandomLetterDialogue(); //39 3
                     if (letterDialogue == I18n.NpcGiftingLetter_AskForDate() && !isGoingOnDate)
                     {
                         isGoingOnDate = true;
                         datePartner = npc;
                         Logger.Log_Info(npc.Name);
-                        Debug.WriteLine($"Going on Date with {npc.Name}");
                         commands += $"/warp {npc.Name} 39 38/move {npc.Name} 0 -11 0/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} 0 11 0/warp {npc.Name} -1000 -1000";
                         continue;
                     }
@@ -368,6 +376,7 @@ namespace LoveFestival
             }
             if (commands == "")
             {
+                Logger.Log_Info("Sad Marnie");
                 commands = $"/pause 3000/faceDirection Marnie 1/pause 500/speak Marnie \"{I18n.MarnieReaction_NoLoveLetters()}\"/pause 500/emote farmer 28/pause 500";
             }
             return commands;
@@ -425,7 +434,7 @@ namespace LoveFestival
         }
         private void OnAssetRequest(object? sender, AssetRequestedEventArgs e)
         {
-            if (e.NameWithoutLocale.IsEquivalentTo("Data/Festivals/winter13"))
+            if (e.NameWithoutLocale.IsEquivalentTo($"Data/Festivals/winter{festivalDate}"))
             {
                 e.LoadFrom(() =>
                 {
@@ -457,7 +466,7 @@ namespace LoveFestival
 
                 e.Edit(static (asset) =>
                 {
-                    asset.AsDictionary<string, string>().Data.Add("winter13", I18n.Festival_Name());
+                    asset.AsDictionary<string, string>().Data.Add($"winter{festivalDate}", I18n.Festival_Name());
                 });
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Data/Events/Beach"))
