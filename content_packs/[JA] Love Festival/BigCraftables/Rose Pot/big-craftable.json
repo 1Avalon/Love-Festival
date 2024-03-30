@@ -1,9 +1,0 @@
-{
-  "Name": "Rose Pot",
-  "Price": 500,
-  "CanPurchase": true,
-  "TranslationKey": "love-festival.rose-pot",
-  "PurchaseFrom": "STF.AvalonMFX.ValentinesFestivalShop",
-  "PurchasePrice": 2500,
-  "isDefault": false
-}
