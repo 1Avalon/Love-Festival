@@ -1,0 +1,22 @@
+{
+  "Format": "2.0.0",
+  "Changes": [
+    {
+      "LogName": "[CP] Love Festival Sprites Load",
+      "Action": "Load",
+      "Target": "Mods/{{ModId}}/Objects",
+      "FromFile": "assets/{{TargetWithoutPath}}.png"
+
+    },
+    {
+      "LogName": "Add Love Letter Item",
+      "Action": "Include",
+      "FromFile": "items/love_letter.json"
+    },
+    {
+      "LogName": "Add Love Festival Shop",
+      "Action": "Include",
+      "FromFile": "shops/LoveFestivalShop.json"
+    }
+  ]
+}

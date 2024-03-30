@@ -1,0 +1,34 @@
+{
+  "Changes": [
+    {
+      "Action": "EditData",
+      "Target": "Data/Shops",
+      "Entries": {
+        "LoveFestivalShop": {
+          "Currency": 0,
+          "Owners": [
+            {
+              "Name": "Pierre",
+              "Dialogues": [
+                // dialogue any other time
+                {
+                  "Id": "AvalonMFX.{{ModId}}_FestivalShopDialogue",
+                  "Dialogue": "{{i18n: shop.festival.message}}"
+                }
+              ]
+            }
+          ],
+          "Items": [
+            {
+              "AvailableStockLimit": "Player",
+              "Price": 1000,
+              "Id": "(O){{ModId}}_LoveLetter",
+              "ItemId": "(O){{ModId}}_LoveLetter",
+              "MaxStack": 5
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
