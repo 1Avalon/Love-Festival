@@ -67,6 +67,8 @@ namespace LoveFestival
         private bool isDateSaved = false;
 
         public static readonly int festivalDate = 6;
+
+        private bool hasDateContentPacks = false;
         public static void PushNPCDialogues(List<NPC> npcs, Farmer who)
         {
             foreach (NPC npc in npcs)
@@ -158,7 +160,7 @@ namespace LoveFestival
                 original: AccessTools.Method(typeof(WeatherDebris), nameof(WeatherDebris.update), new Type[] { typeof(bool) }),
                 postfix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Postfix_CustomWeatherDebrisUpdatePatch))
                 );
-            // Patching manually provides mobile compatibility ? TODO: simplify */
+            // Patching manually provides mobile compatibility ?
 
 
         }
@@ -180,7 +182,9 @@ namespace LoveFestival
                 if (datePartner != null && datePartner.Name == authorName && date == null)
                 {
                     dateLetter = DateLetter.getRandomDateLetter(datePartner);
+                    dateLetter.Date.LoadNpcNameToken();
                     letter = dateLetter;
+                    Logger.Log_Info(letter.Content);
                 }
                 else
                 {
@@ -191,7 +195,7 @@ namespace LoveFestival
                 LetterViewerMenu menu = new LetterViewerMenu(msg, split[1]);
                 menu.exitFunction = () =>
                 {
-                    instance.CurrentCommand++;
+                        instance.currentCommand++;
                 };
                 Game1.activeClickableMenu = menu;
             }
@@ -221,10 +225,10 @@ namespace LoveFestival
                             date = dateLetter.Date;
                             date.day = wrapper.day;
                             Debug.WriteLine($"Having date on day {date.day}");
+                            date.LoadDaysUntilDateToken();
                             Dialogue dialogue = new(npc, null, date.AcceptDateResponse);
                             npc.CurrentDialogue.Push(dialogue);
                             Game1.drawDialogue(npc);
-                            instance.currentCommand++;
                         };
                         Game1.activeClickableMenu = wrapper;
 
@@ -248,7 +252,7 @@ namespace LoveFestival
             if (date == null || isDateSaved)
                 return;
 
-            Helper.Data.WriteSaveData(date.DateUniqueId, date); //CRASH -> Move day to modDate
+            Helper.Data.WriteSaveData(date.DateUniqueId, date);
             isDateSaved = true;
             Logger.Log_Info("Saved Date Data");
         }
@@ -271,11 +275,11 @@ namespace LoveFestival
                     //spouse.setNewDialogue("I truly appreciate how you gave your didn't give me your love letter...$s");
                 }
             }
-            else if (date != null && e.NewLocation.Name == date.Location && Game1.Date.DayOfMonth == date.day)
+            else if (date != null && Game1.Date.DayOfMonth == date.day && dateLetter != null)
             {
                 modHelper.GameContent.InvalidateCache($"Data\\Events\\{date.Location}");
                 dateLetter = null;
-                date = null;
+                Helper.Data.WriteSaveData<ModDate>(date.DateUniqueId, null);
             }
         }
 
@@ -361,7 +365,12 @@ namespace LoveFestival
                 if (chance == 9 || Game1.player.spouse == npc.Name)
                 {
                     chosenLoveLetterGifters.Add(npc);
-                    string letterDialogue = getRandomLetterDialogue(); //39 3
+                    string letterDialogue;
+                    do
+                    {
+                        letterDialogue = getRandomLetterDialogue();    //39 3
+                    } while (letterDialogue == I18n.NpcGiftingLetter_AskForDate() && isGoingOnDate);
+
                     if (letterDialogue == I18n.NpcGiftingLetter_AskForDate() && !isGoingOnDate)
                     {
                         isGoingOnDate = true;
