@@ -56,7 +56,7 @@ namespace LoveFestival
         {
             base.draw(b);
             Game1.drawDialogueBox(this.xPositionOnScreen, this.yPositionOnScreen + 650, this.width, 200, false, true);
-            Utility.drawTextWithShadow(b, "Choose a Date for your date & double click", Game1.dialogueFont, new Vector2(this.xPositionOnScreen + 200, this.yPositionOnScreen + 760), Color.Black);
+            Utility.drawTextWithShadow(b, I18n.Calendar_ChooseDate(), Game1.dialogueFont, new Vector2(this.xPositionOnScreen + 200, this.yPositionOnScreen + 760), Color.Black);
             if (selectedDay != null)
             {
                 b.Draw(Game1.staminaRect, selectedDay.bounds, Color.Green * 0.5f);
