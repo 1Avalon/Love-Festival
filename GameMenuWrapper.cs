@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace LoveFestival
 {
-    public class GameMeuWrapper : GameMenu
+    public class GameMenuWrapper : GameMenu
     {
 
         private SocialPage page;
@@ -20,7 +20,7 @@ namespace LoveFestival
 
         public string targetName;
     
-        public GameMeuWrapper() : base(2) // 2 = SocialPage
+        public GameMenuWrapper() : base(2) // 2 = SocialPage
         { 
             page = (SocialPage) GetCurrentPage();
             foreach (ClickableComponent tab in tabs)

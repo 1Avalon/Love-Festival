@@ -109,7 +109,7 @@ namespace LoveFestival
                                 return;
                             }
 
-                            Game1.activeClickableMenu = new GameMeuWrapper();
+                            Game1.activeClickableMenu = new GameMenuWrapper();
                             //Game1.drawObjectDialogue("Increased friendship gain for Haley by 20% for 7 days.");
                         }
                     }));
