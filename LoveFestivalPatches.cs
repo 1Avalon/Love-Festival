@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
@@ -9,6 +10,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using xTile.Dimensions;
+using Location = xTile.Dimensions.Location;
 
 namespace LoveFestival
 {
@@ -17,6 +20,8 @@ namespace LoveFestival
         private static Color letterFontColor = Color.Black;
 
         private static string festivalKey = "StartLoveFestivalKey";
+
+        public static bool boughtCupidArrow = false;
         public static bool Prefix_CustomLetterBackgroundPatch(LetterViewerMenu __instance)
         {
             if (__instance.mailTitle is null) // secret note
@@ -50,6 +55,7 @@ namespace LoveFestival
                 ModEntry.datePartner = null;
                 ModEntry.dateLetter = null;
                 ModEntry.ExecuteDateQuestion = false;
+                ModEntry.date = null;
                 if (ModEntry.chosenLoveLetterGifters.Count > 0)
                     ModEntry.chosenLoveLetterGifters.Clear();
                 string command = ModEntry.getMainEvent();
@@ -58,12 +64,13 @@ namespace LoveFestival
                     __instance.actors.Add(npc);
                 }
 
-                ModEntry.debrisEnabled = true;
+                ModEntry.debrisEnabled = true; //TODO move these to a method and call it ResetValues
                 ModEntry.loveLetterNotGivenToSpouse = false;
                 ModEntry.letterSent = false;
                 ModEntry.seenSpouseDialogue = false;
                 ModEntry.isValentinesFestival = true;
                 ModEntry.isGoingOnDate = false;
+                boughtCupidArrow = false;
                 Game1.populateDebrisWeatherArray();
                 var festData = ModEntry.instance.Helper.Reflection.GetField<Dictionary<string, string>>(Game1.CurrentEvent, "festivalData").GetValue();
                 //string agreedToDateInformation = festData["dialogueDateAgreed"].Replace("DATEINFORMATION", ModEntry.modHelper.Translation.Get($"LoveLetter.{ModEntry.date}Information"));
@@ -78,10 +85,36 @@ namespace LoveFestival
                 ModEntry.instance.Helper.Reflection.GetField<string>(__instance, "hostMessageKey").SetValue(festivalKey);
             }
         }
-        public static void Prefix_ForceFestivalContinuePatch(Event __instance, Farmer who)
+        public static void Prefix_ForceFestivalContinuePatch(Event __instance, Farmer who, Location tileLocation)
         {
             if (__instance.isSpecificFestival($"winter{ModEntry.festivalDate}"))
             {
+                GameLocation location = Game1.currentLocation;
+                string tileAction = location.doesTileHaveProperty(tileLocation.X, tileLocation.Y, "Action", "Buildings");
+
+                if (tileAction == "CupidShop") //TODO: Move this to the new hook
+                {
+                    Response[] responses = new Response[2]
+                    {
+                        new Response("Yes", I18n.CupidStore_Yes()),
+                        new Response("No", I18n.StartMessage_AnswerNo())
+                    };
+                    location.createQuestionDialogue(I18n.CupidStore_BuyArrow(), responses, new GameLocation.afterQuestionBehavior((Farmer who, string dialogue_id) =>
+                    {
+                        if (dialogue_id == "Yes")
+                        {
+                            if (boughtCupidArrow)
+                            {
+                                Game1.drawObjectDialogue(I18n.CupidStore_AlreadyBought());
+                                return;
+                            }
+
+                            Game1.activeClickableMenu = new GameMeuWrapper();
+                            //Game1.drawObjectDialogue("Increased friendship gain for Haley by 20% for 7 days.");
+                        }
+                    }));
+                }
+
                 foreach (NPC npc in __instance.actors)
                 {
                     if (!ModEntry.letterSent)
