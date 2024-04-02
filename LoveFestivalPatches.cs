@@ -22,6 +22,8 @@ namespace LoveFestival
         private static string festivalKey = "StartLoveFestivalKey";
 
         public static bool boughtCupidArrow = false;
+
+        public static NPC friendshipMultiplierTarget; //TODO move ít somewhere else to avoid CA2211
         public static bool Prefix_CustomLetterBackgroundPatch(LetterViewerMenu __instance)
         {
             if (__instance.mailTitle is null) // secret note
@@ -43,7 +45,7 @@ namespace LoveFestival
         {
             if (translationKey == festivalKey)
             {
-                __instance.setNewDialogue(new Dialogue(__instance, null, $"$q -1 null#{I18n.StartMessage_Question()}?#$r -1 0 yes#{I18n.StartMessage_AnswerYes()}#$r -1 0 no#{I18n.StartMessage_AnswerNo()}"));
+                __instance.setNewDialogue(new Dialogue(__instance, null, $"$q -1 null#{I18n.StartMessage_Question()}#$r -1 0 yes#{I18n.StartMessage_AnswerYes()}#$r -1 0 no#{I18n.StartMessage_AnswerNo()}"));
                 return false;
             }
             return true;
@@ -52,13 +54,15 @@ namespace LoveFestival
         {
             if (id == "LoveFestival17819")
             {
-                ModEntry.datePartner = null;
                 ModEntry.dateLetter = null;
                 ModEntry.ExecuteDateQuestion = false;
                 ModEntry.date = null;
                 if (ModEntry.chosenLoveLetterGifters.Count > 0)
                     ModEntry.chosenLoveLetterGifters.Clear();
-                string command = ModEntry.getMainEvent();
+                string command = ModEntry.mainEventScript;
+                ModEntry.modHelper.GameContent.InvalidateCache(ModEntry.modDateEntryKey);
+                Dictionary<string, ModDate> abc = ModEntry.modHelper.GameContent.Load<Dictionary<string, ModDate>>(ModEntry.modDateEntryKey);
+                Debug.WriteLine(abc.ToString());//when adding this line the token works somehow
                 foreach (NPC npc in ModEntry.chosenLoveLetterGifters)
                 {
                     __instance.actors.Add(npc);
@@ -108,6 +112,11 @@ namespace LoveFestival
                                 Game1.drawObjectDialogue(I18n.CupidStore_AlreadyBought());
                                 return;
                             }
+                            if (Game1.player.Money < 2500)
+                            {
+                                Game1.drawObjectDialogue(I18n.Misc_NotEnoughMoney());
+                                return;
+                            }
 
                             Game1.activeClickableMenu = new GameMenuWrapper();
                             //Game1.drawObjectDialogue("Increased friendship gain for Haley by 20% for 7 days.");
@@ -133,6 +142,16 @@ namespace LoveFestival
                     }
                 }
             }
+        }
+
+        public static bool Prefix_changeFriendship(Farmer __instance, ref int amount, NPC n)
+        {
+            if (ModEntry.multiplier != null && n == Game1.getCharacterFromName(ModEntry.multiplier.targetName) && !ModEntry.isValentinesFestival) //dont activate during festival otherwise the letter will add too many points
+            {
+                float amount2 = (float)amount * 1.2f;
+                amount = (int)amount2;
+            }
+            return true;
         }
         public static void Postfix_DebrisDuringFestivalPatch(ref bool __result)
         {
