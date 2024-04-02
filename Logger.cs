@@ -21,5 +21,11 @@ namespace LoveFestival
             if (debug)
                 Debug.WriteLine(message);
         }
+        public static void Log_Trace(string message, bool debug = false)
+        {
+            ModEntry.instance.Monitor.Log(message, StardewModdingAPI.LogLevel.Trace);
+            if (debug)
+                Debug.WriteLine(message);
+        }
     }
 }
