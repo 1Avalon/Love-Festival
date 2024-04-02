@@ -1,4 +1,5 @@
-﻿using StardewValley;
+﻿using Microsoft.Xna.Framework;
+using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,31 +11,26 @@ namespace LoveFestival
 {
     public class DateLetter : ModLetter
     {
+        public string DateId;
 
-        private static Dictionary<string, ModDate> modDates;
+        public string AcceptDateResponse;
+
+        private readonly string DAYSUNTILDATE_TOKEN = "{DAYS_UNTIL_DATE}";
 
         public int day;
 
-        public NPC DatePartner;
-
-        public ModDate Date;
-
-        public DateLetter(ModDate date, NPC datePartner)
+        public string NpcName;
+        public void LoadDaysUntillDateToken()
         {
-            Date = date;
-            DatePartner = datePartner;
-            Content = date.DateLetterContent;
+            AcceptDateResponse = AcceptDateResponse.Replace(DAYSUNTILDATE_TOKEN, (day - Game1.dayOfMonth).ToString());
         }
-
-        public static DateLetter getRandomDateLetter(NPC datePartner)
+        public static DateLetter getRandomDateLetter()
         {
-            modDates ??= ModEntry.modHelper.GameContent.Load<Dictionary<string, ModDate>>(ModEntry.modDateEntryKey)
-
-            int index = ModEntry.ModRandom.Next(modDates.Count);
-           
-            ModDate randomDate = modDates.ElementAt(index).Value;
-
-            return new DateLetter(randomDate, datePartner); //TODO use values from modDates as soon as theyre loaded
+            Dictionary<string, DateLetter> modLetters = ModEntry.modHelper.GameContent.Load<Dictionary<string, DateLetter>>(ModEntry.modDateLetterEntryKey);
+            int index = ModEntry.ModRandom.Next(modLetters.Count);
+            return modLetters.ElementAt(index).Value;
+            
         }
     }
 }
+

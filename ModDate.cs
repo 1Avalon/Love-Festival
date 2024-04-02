@@ -11,37 +11,24 @@ namespace LoveFestival
 {
     public sealed class ModDate
     {
-        public string DateUniqueId;
-
         public string Condition;
 
         public string Location;
 
         public Dictionary<string, string> EventScript;
 
-        public string DateLetterContent;
-
-        public string AcceptDateResponse;
-
         public int day;
 
         public string DatePartnerName;
 
-        private readonly string NAME_TOKEN = "{DATEPARTNER_NAME}";
-
-        private readonly string DAYSUNTILDATE_TOKEN = "{DAYS_UNTIL_DATE}";
-        public void LoadNpcNameToken()
+        public string Id;
+        public static ModDate GetDateFromLetter(DateLetter letter)
         {
-            DateLetterContent = DateLetterContent.Replace(NAME_TOKEN, DatePartnerName);
-            foreach (var item in EventScript)
-            {
-                EventScript[item.Key] = item.Value.Replace(NAME_TOKEN, DatePartnerName);
-            }
-        }
-        public void LoadDaysUntilDateToken()
-        {
-            AcceptDateResponse = AcceptDateResponse.Replace(DAYSUNTILDATE_TOKEN, (day - Game1.dayOfMonth).ToString());
-        }
-
+            Dictionary<string, ModDate> modDates = ModEntry.modHelper.GameContent.Load<Dictionary<string, ModDate>>(ModEntry.modDateEntryKey);
+            ModDate date = modDates[letter.DateId];
+            date.Id = letter.DateId;
+            date.day = letter.day;
+            return date;
+        } 
     }
 }

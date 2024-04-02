@@ -13,6 +13,7 @@ using Microsoft.VisualBasic;
 using System.Xml.Linq;
 using System.Linq;
 using StardewValley.Delegates;
+using ContentPatcher;
 
 namespace LoveFestival
 {
@@ -25,13 +26,18 @@ namespace LoveFestival
 
         public static readonly string modDateEntryKey = "AvalonMFX.LoveFestival/Dates";
 
+        public static readonly string modDateLetterEntryKey = "AvalonMFX.LoveFestival/DateLetters";
+
         public static Texture2D bgLoveLetter;
+
         public static Texture2D redRoseDebris;
+
         public static Texture2D greenRoseDebris;
+
         public static Texture2D beachNightSky;
 
-
         public static List<NPC> npcs;
+
         public static bool letterSent = false;
 
         public static bool loveLetterNotGivenToSpouse = false;
@@ -39,9 +45,11 @@ namespace LoveFestival
         public static bool isGoingOnDate = false;
 
         private List<string> receiveLetterReactions = new List<string>();
+
         public static List<string> reactions = new List<string>();
 
         public static bool seenSpouseDialogue = false;
+
         public List<string> spouseDialouges;
 
         public static bool debrisEnabled = false;
@@ -60,32 +68,17 @@ namespace LoveFestival
 
         public static ModDate date;
 
-        private List<DateLetter> dateLetters;
-
         public static bool ExecuteDateQuestion = false;
-
-        private bool isDateSaved = false;
 
         public static readonly int festivalDate = 6;
 
+        public static FriendshipMultiplier multiplier;
+
         private bool hasDateContentPacks = false;
-        public static void PushNPCDialogues(List<NPC> npcs, Farmer who)
-        {
-            foreach (NPC npc in npcs)
-            {
-                if ((bool)npc.datable || who.spouse == npc.Name)
-                {
-                    //if (npc.CurrentDialogue.Count > 0 && npc.CurrentDialogue.Peek().getCurrentDialogue().Equals("..."))
-                    // npc.CurrentDialogue.Clear();
-                    if (npc.CurrentDialogue.Count == 0 && ModEntry.letterSent == false && who.spouse == npc.Name)
-                    {
-                        npc.CurrentDialogue.Push(new Dialogue(npc, null, dialogueToBeReplaced));
-                        npc.setNewDialogue(dialogueToBeReplaced);
-                        //npc.setNewDialogue(Game1.content.LoadString("Strings\\StringsFromCSFiles:Event.cs.1736", npc.displayName), add: true); //Game1.content.LoadString("Strings\\StringsFromCSFiles:Event.cs.1736", npc.displayName)
-                    }
-                }
-            }
-        }
+
+        public static string mainEventScript;
+
+        private bool hasSeenDate = false;
 
         /*********
         ** Public methods
@@ -142,6 +135,11 @@ namespace LoveFestival
                 );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.changeFriendship)),
+                prefix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Prefix_changeFriendship))
+                );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), nameof(Game1.IsDebrisWeatherHere)),
                 postfix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Postfix_DebrisDuringFestivalPatch))
                 );
@@ -170,8 +168,21 @@ namespace LoveFestival
             Event.RegisterCommand("showLoveLetter", (EventCommandDelegate) Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(showLoveLetter_command))));
             Event.RegisterCommand("askForDate", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command))));
             Monitor.Log("Game crashed due to Love Festival? Make sure to update to the newest version if you haven't done it yet. There are new bug fixes every update!", LogLevel.Warn);
-        }
+            var api = this.Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
+            api.RegisterToken(this.ModManifest, "DatePartnerName", () =>
+            {
+                Logger.Log_Info("Loading Date Partner Token");
+                if (datePartner != null)
+                    return new[] { datePartner.Name };
 
+                if (dateLetter?.NpcName != null)
+                    return new[] { dateLetter.NpcName };
+
+
+
+                return null;
+            });
+        }
         public static void showLoveLetter_command(Event instance, string[] split, EventContext context)
         {
             IClickableMenu acm = Game1.activeClickableMenu;
@@ -181,8 +192,7 @@ namespace LoveFestival
                 string authorName = split[1].Split("_")[0];
                 if (datePartner != null && datePartner.Name == authorName && date == null)
                 {
-                    dateLetter = DateLetter.getRandomDateLetter(datePartner);
-                    dateLetter.Date.LoadNpcNameToken();
+                    dateLetter = DateLetter.getRandomDateLetter();
                     letter = dateLetter;
                     Logger.Log_Info(letter.Content);
                 }
@@ -222,11 +232,11 @@ namespace LoveFestival
 
                         wrapper.exitFunction = () =>
                         {
-                            date = dateLetter.Date;
-                            date.day = wrapper.day;
-                            Debug.WriteLine($"Having date on day {date.day}");
-                            date.LoadDaysUntilDateToken();
-                            Dialogue dialogue = new(npc, null, date.AcceptDateResponse);
+                            dateLetter.day = wrapper.day;
+                            Debug.WriteLine($"Having date on day {wrapper.day}");
+                            dateLetter.LoadDaysUntillDateToken();
+                            dateLetter.NpcName = npc.Name;
+                            Dialogue dialogue = new(npc, null, dateLetter.AcceptDateResponse);
                             npc.CurrentDialogue.Push(dialogue);
                             Game1.drawDialogue(npc);
                         };
@@ -249,24 +259,37 @@ namespace LoveFestival
 
         private void OnGameSaved(object sender, SavedEventArgs e)
         {
-            if (date == null || isDateSaved)
-                return;
-
-            Helper.Data.WriteSaveData(date.DateUniqueId, date);
-            isDateSaved = true;
-            Logger.Log_Info("Saved Date Data");
+            if (hasSeenDate)
+            {
+                Helper.Data.WriteSaveData<DateLetter>("DateLetter", null);
+                Logger.Log_Trace("Cleared data Data...");
+                hasSeenDate = false;
+            }
+            else if (dateLetter != null)
+            {
+                Helper.Data.WriteSaveData("DateLetter", dateLetter);
+                DateLetter test = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
+                Logger.Log_Info(test?.Content);
+                Logger.Log_Trace("Saved Date Data");
+            }
+            if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt) //More consistent
+            {
+                Helper.Data.WriteSaveData("Multiplier", multiplier);
+                Logger.Log_Trace("Saved Multiplier Data");
+            }
         }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
             Logger.Log_Info(e.NewLocation.Name);
+
             if (e.OldLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate || e.OldLocation.Name == "Temp" && isValentinesFestival)
             {
                 ExecuteDateQuestion = false;
                 chosenLoveLetterGifters.Clear();
                 Game1.debrisWeather.Clear();
                 isValentinesFestival = false;
-                datePartner = null;
                 isGoingOnDate = false;
+                
                 if (loveLetterNotGivenToSpouse)
                 {
                     NPC spouse = Game1.getCharacterFromName(Game1.player.spouse);
@@ -275,11 +298,18 @@ namespace LoveFestival
                     //spouse.setNewDialogue("I truly appreciate how you gave your didn't give me your love letter...$s");
                 }
             }
-            else if (date != null && Game1.Date.DayOfMonth == date.day && dateLetter != null)
+            else if (dateLetter != null && Game1.Date.DayOfMonth == dateLetter.day)
             {
+                date = ModDate.GetDateFromLetter(dateLetter);
                 modHelper.GameContent.InvalidateCache($"Data\\Events\\{date.Location}");
                 dateLetter = null;
-                Helper.Data.WriteSaveData<ModDate>(date.DateUniqueId, null);
+                hasSeenDate = true;
+                //Helper.Data.WriteSaveData<DateLetter>("DateLetter", null); //instead add a bool and run this when saving otherwise the player cant see the event again if he doesnt save
+            }
+            else if(e.NewLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate && Game1.timeOfDay <= 1400)
+            {
+                Logger.Log_Trace("Attended Love Festival. Getting Main Event script...");
+                mainEventScript = getMainEvent();
             }
         }
 
@@ -287,16 +317,18 @@ namespace LoveFestival
         {
             npcs = getAllNPCs();
             isValentinesFestival = false;
+            date = null;
+            Game1.player.eventsSeen.Remove("17819");
 
-            Dictionary<string, ModDate> dateData = Helper.GameContent.Load<Dictionary<string, ModDate>>(modDateEntryKey);
-            foreach (var kvp in dateData)
+            multiplier = Helper.Data.ReadSaveData<FriendshipMultiplier>("Multiplier");
+            dateLetter = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
+            if (multiplier != null)
             {
-                date = Helper.Data.ReadSaveData<ModDate>(kvp.Key);
-                if (date != null)
-                {
-                    Logger.Log_Info("Sucessfully loaded date");
-                    break;
-                }
+                Logger.Log_Trace($"Successfully loaded friendship multiplier for {multiplier.targetName}");
+            }
+            if (dateLetter != null)
+            {
+                Logger.Log_Trace($"Successfully loaded Date {dateLetter.DateId}. Taking place on day {dateLetter.day}");
             }
 
             foreach (var translation in Helper.Translation.GetTranslations())
@@ -323,6 +355,12 @@ namespace LoveFestival
             {
                 Game1.player.mailbox.Add("VEInvitationLetterTomorrow");
                 //Game1.netWorldState.Value.WeatherForTomorrow = Game1.weatherForTomorrow = 2; //remove and check if it changes anything
+            }
+            else if (multiplier != null && date.DayOfMonth == multiplier.expiresAt && date.Season == Season.Winter)
+            {
+                Logger.Log_Trace("Friendship multiplier expired");
+                Helper.Data.WriteSaveData<FriendshipMultiplier>("Multiplier", null);
+                multiplier = null;
             }
         }
         public static string getRandomLetterDialogue()
@@ -385,7 +423,6 @@ namespace LoveFestival
             }
             if (commands == "")
             {
-                Logger.Log_Info("Sad Marnie");
                 commands = $"/pause 3000/faceDirection Marnie 1/pause 500/speak Marnie \"{I18n.MarnieReaction_NoLoveLetters()}\"/pause 500/emote farmer 28/pause 500";
             }
             return commands;
@@ -498,6 +535,10 @@ namespace LoveFestival
             {
                 e.LoadFrom(() => new Dictionary<string, ModDate>(), AssetLoadPriority.Exclusive);
             }
+            else if (e.NameWithoutLocale.IsEquivalentTo(modDateLetterEntryKey))
+            {
+                e.LoadFrom(() => new Dictionary<string, DateLetter>(), AssetLoadPriority.Exclusive);
+            }
         }
         private IDictionary<string, string> FestivalData()
         {
@@ -508,7 +549,7 @@ namespace LoveFestival
                 ["set-up"] = "musicboxsong/-1000 -1000/farmer 1 54 2/changeToTemporaryMap Town-LoveFestival/loadActors Set-Up/animate Robin false true 500 20 21 20 22/animate Demetrius false true 500 24 25 24 26/playerControl LoveFestival17819",
                 ["mainEvent"] = $"globalFade/viewport -1000 -1000/warp farmer 39 26/faceDirection farmer 2/warp Marnie 38 26/faceDirection Marnie 2/warp Lewis 40 26/faceDirection Lewis 2/viewport 39 26/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end",
             };
-            foreach(var translation in Helper.Translation.GetTranslations())
+            foreach (var translation in Helper.Translation.GetTranslations())
             {
                 const string prefix = "Dialogue.";
                 if (translation.Key.StartsWith(prefix))
