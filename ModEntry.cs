@@ -158,6 +158,10 @@ namespace LoveFestival
                 original: AccessTools.Method(typeof(WeatherDebris), nameof(WeatherDebris.update), new Type[] { typeof(bool) }),
                 postfix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Postfix_CustomWeatherDebrisUpdatePatch))
                 );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.IsDebrisWeatherHere)),
+                postfix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Postfix_IsDebrisWeatherHere))
+                );
             // Patching manually provides mobile compatibility ?
 
 
@@ -171,7 +175,6 @@ namespace LoveFestival
             var api = this.Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
             api.RegisterToken(this.ModManifest, "DatePartnerName", () =>
             {
-                Logger.Log_Info("Loading Date Partner Token");
                 if (datePartner != null)
                     return new[] { datePartner.Name };
 

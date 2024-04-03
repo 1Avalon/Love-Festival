@@ -148,23 +148,25 @@ namespace LoveFestival
         {
             if (ModEntry.multiplier != null && n == Game1.getCharacterFromName(ModEntry.multiplier.targetName) && !ModEntry.isValentinesFestival) //dont activate during festival otherwise the letter will add too many points
             {
-                float amount2 = (float)amount * 1.2f;
+                float amount2 = amount * 1.2f;
                 amount = (int)amount2;
             }
             return true;
         }
         public static void Postfix_DebrisDuringFestivalPatch(ref bool __result)
         {
-            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival)
+            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter || ModEntry.isValentinesFestival)
+            {
                 __result = true;
+            }
         }
         public static void Postfix_PopulateDebrisPatch(Game1 __instance)
         {
             if (!Context.IsWorldReady) return;
 
-            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival) // perhaps use static field so the leaves will rain when getting to the festival although its not happening "natural"
+            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter || ModEntry.isValentinesFestival) // perhaps use static field so the leaves will rain when getting to the festival although its not happening "natural"
             {
-                int num = Game1.random.Next(16, 64);
+                int num = Game1.random.Next(32, 64);
                 for (int i = 0; i < num; i++)
                 {
                     Game1.debrisWeather.Add(new WeatherDebris(new Vector2((float)Game1.random.Next(0, Game1.viewport.Width), (float)Game1.random.Next(0, Game1.viewport.Height)), 2, (float)Game1.random.Next(15) / 500f, (float)Game1.random.Next(-10, 0) / 50f, (float)Game1.random.Next(10) / 50f));
@@ -174,7 +176,7 @@ namespace LoveFestival
         }
         public static bool Prefix_CustomWeatherDebrisPatch(WeatherDebris __instance, ref SpriteBatch b)
         {
-            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival)
+            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter || ModEntry.isValentinesFestival)
             {
                 Texture2D texture = __instance.which == 2 ? ModEntry.redRoseDebris : ModEntry.greenRoseDebris;
 
@@ -186,10 +188,17 @@ namespace LoveFestival
         }
         public static void Postfix_CustomWeatherDebrisUpdatePatch(WeatherDebris __instance)
         {
-            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter && Game1.isFestival() || ModEntry.isValentinesFestival)
+            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter || ModEntry.isValentinesFestival)
             {
                 __instance.sourceRect.X = 0 + __instance.animationIndex * 16;
                 __instance.sourceRect.Y = 0;
+            }
+        }
+        public static void Postfix_IsDebrisWeatherHere(GameLocation __instance, ref bool __result)
+        {
+            if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter || ModEntry.isValentinesFestival)
+            {
+                __result = true;
             }
         }
     }
