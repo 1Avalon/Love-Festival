@@ -34,7 +34,7 @@ namespace LoveFestival
         {
             base.receiveLeftClick(x, y, playSound);
 
-            if (selectedDay != null && okButton.containsPoint(x, y))
+            if (selectedDay != null && selectedDay.containsPoint(x, y))
             {
                 this.exitThisMenu();
                 return;
