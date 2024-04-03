@@ -36,6 +36,7 @@ namespace LoveFestival
 
             if (selectedDay != null && selectedDay.containsPoint(x, y))
             {
+                Game1.playSound("reward");
                 this.exitThisMenu();
                 return;
             }

@@ -18,7 +18,9 @@ namespace LoveFestival
 
         private ClickableComponent npcSlot;
 
-        public string targetName;
+        private string targetName;
+
+        private string uiHint = I18n.CupidStore_Menu_UIHint(); //TODO padding
     
         public GameMenuWrapper() : base(2) // 2 = SocialPage
         { 
@@ -31,6 +33,8 @@ namespace LoveFestival
         public override void draw(SpriteBatch b)
         {
             base.draw(b);
+            Game1.drawDialogueBox(this.xPositionOnScreen, this.yPositionOnScreen / 2 + height, this.width + 38, 200, false, true);
+            Utility.drawTextWithShadow(b, uiHint, Game1.dialogueFont, new Vector2(this.xPositionOnScreen + this.width / 3f, this.yPositionOnScreen + height + 30), Color.Black);
             if (npcSlot != null && npcSlot.bounds.Y > 155 && npcSlot.bounds.Y < 807)
                 b.Draw(Game1.staminaRect, new Rectangle(npcSlot.bounds.X, npcSlot.bounds.Y, npcSlot.bounds.Width, npcSlot.bounds.Height), Color.Green * 0.25f);
 
@@ -44,12 +48,13 @@ namespace LoveFestival
                 targetName = menu.Current.Character.Name;
             }
 
-            if (npcSlot != null && npcSlot.containsPoint(x, y))
+            if (npcSlot != null && npcSlot.containsPoint(x, y) && npcSlot.bounds.Y > 155 && npcSlot.bounds.Y < 807)
             {
                 Game1.playSound("reward");
                 Game1.player.Money -= 2500;
                 Game1.drawObjectDialogue(I18n.CupidStore_Success(targetName));
                 LoveFestivalPatches.boughtCupidArrow = true;
+                ModEntry.multiplier = new FriendshipMultiplier(targetName);
                 exitThisMenu();
             }
 
@@ -60,7 +65,9 @@ namespace LoveFestival
                     continue;
                 }
 
-                npcSlot = page.characterSlots[i];
+                ClickableComponent slot = page.characterSlots[i];
+                if (slot.bounds.Y > 155 && slot.bounds.Y < 807)
+                    npcSlot = slot;
             }
 
         }
