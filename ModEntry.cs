@@ -9,9 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics;
 using System.Collections.Generic;
 using xTile;
-using Microsoft.VisualBasic;
-using System.Xml.Linq;
-using System.Linq;
 using StardewValley.Delegates;
 using ContentPatcher;
 
@@ -37,6 +34,8 @@ namespace LoveFestival
         public static Texture2D beachNightSky;
 
         public static List<NPC> npcs;
+
+        public static ModConfig Config;
 
         public static bool letterSent = false;
 
@@ -74,7 +73,7 @@ namespace LoveFestival
 
         public static FriendshipMultiplier multiplier;
 
-        private bool hasDateContentPacks = false;
+        private static bool hasDateContentPacks = false;
 
         public static string mainEventScript;
 
@@ -87,6 +86,8 @@ namespace LoveFestival
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
+            Config = Helper.ReadConfig<ModConfig>();
+
             instance = this;
             modHelper = helper;
             bgLoveLetter = Helper.ModContent.Load<Texture2D>("assets/love_letter_bg");
@@ -101,6 +102,9 @@ namespace LoveFestival
             helper.Events.GameLoop.DayStarted += this.OnDayStarted;
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.Saved += this.OnGameSaved;
+
+            helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
+
             spouseDialouges = GetSpouseDialogues();
 
             ModRandom = new Random();
@@ -173,18 +177,40 @@ namespace LoveFestival
             Event.RegisterCommand("askForDate", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command))));
             Monitor.Log("Game crashed due to Love Festival? Make sure to update to the newest version if you haven't done it yet. There are new bug fixes every update!", LogLevel.Warn);
             var api = this.Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
+            var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             api.RegisterToken(this.ModManifest, "DatePartnerName", () =>
             {
+                Logger.Log_Info("Reload Token");
                 if (datePartner != null)
                     return new[] { datePartner.Name };
 
                 if (dateLetter?.NpcName != null)
                     return new[] { dateLetter.NpcName };
 
+                if (Config.TestNpcDateName != null || Config.TestNpcDateName != "")
+                    return new[] { Config.TestNpcDateName };
+
 
 
                 return null;
             });
+
+            if (configMenu is null)
+                return;
+
+            configMenu.Register(
+                mod: this.ModManifest,
+                reset: () => Config = new ModConfig(),
+                save: () => this.Helper.WriteConfig(Config)
+            );
+
+            configMenu.AddTextOption(
+                mod: this.ModManifest,
+                name: () => "Actor Name for Date Tests",
+                tooltip: () => "The name of the NPC who should act as a date partner when testing dates. Leave empty when you're not going to use it.",
+                getValue: () => Config.TestNpcDateName,
+                setValue: value => Config.TestNpcDateName = value
+            );
         }
         public static void showLoveLetter_command(Event instance, string[] split, EventContext context)
         {
@@ -260,6 +286,35 @@ namespace LoveFestival
             }
         }
 
+        private void TestDate(string command, string[] args)
+        {
+            string dateId = args[0];
+
+            NPC oldDatePartner = datePartner;
+            ModDate oldDate = date;
+            datePartner = Game1.getCharacterFromName(Config.TestNpcDateName);
+            if (datePartner == null)
+            {
+                datePartner = oldDatePartner;
+                Monitor.Log("NPC NOT FOUND", LogLevel.Error);
+                return;
+            }
+            //Game1.warpFarmer("FarmHouse", 1, 1, false);//warp to random location so CP token will load
+            Dictionary<string, ModDate> modDates = Helper.GameContent.Load<Dictionary<string, ModDate>>(modDateEntryKey);
+
+            date = modDates[dateId];
+            Helper.GameContent.InvalidateCache($"Data\\Events\\{date.Location}");
+
+            Dictionary<string, string> dict = Helper.GameContent.Load<Dictionary<string, string>>($"Data\\Events\\{date.Location}");
+
+            Logger.Log_Info(dict.ToString());
+            bool x = Game1.PlayEvent(dateId, false, false);
+            Logger.Log_Info(x.ToString());
+            datePartner = oldDatePartner;
+            date = oldDate;
+
+
+        }
         private void OnGameSaved(object sender, SavedEventArgs e)
         {
             if (hasSeenDate)
@@ -333,6 +388,16 @@ namespace LoveFestival
             {
                 Logger.Log_Trace($"Successfully loaded Date {dateLetter.DateId}. Taking place on day {dateLetter.day}");
             }
+            Dictionary<string, DateLetter> modLetters = ModEntry.modHelper.GameContent.Load<Dictionary<string, DateLetter>>(ModEntry.modDateLetterEntryKey);
+            if (modLetters.Count == 0 && !hasDateContentPacks)
+            {
+                Logger.Log_Info("No Date Packs for Love Festival found. Ignoring date mechanic...");
+            }
+            else if (!hasDateContentPacks)
+            {
+                Logger.Log_Info($"Found {modLetters.Count} dates for Love Festival");
+                hasDateContentPacks = true;
+            }
 
             foreach (var translation in Helper.Translation.GetTranslations())
             {
@@ -368,6 +433,12 @@ namespace LoveFestival
         }
         public static string getRandomLetterDialogue()
         {
+
+            if (!hasDateContentPacks && reactions.Contains(I18n.NpcGiftingLetter_AskForDate()))
+            {
+                reactions.Remove(I18n.NpcGiftingLetter_AskForDate());
+            }
+
             int index = ModRandom.Next(0, reactions.Count);
             return reactions[index];
         }
@@ -496,17 +567,21 @@ namespace LoveFestival
             {
                 e.LoadFromModFile<Map>("assets/Town-LoveFestival.tbin", AssetLoadPriority.Exclusive);
             }
-            else if (e.NameWithoutLocale.IsEquivalentTo("Maps/LoveFestivalDateSky"))
-                e.LoadFromModFile<Map>("assets/LoveFestivalDateSky.tbin", AssetLoadPriority.Exclusive);
             else if (date != null && e.NameWithoutLocale.IsEquivalentTo($"Data/Events/{date.Location}"))
             {
                 e.Edit((IAssetData asset) =>
                 {
-                    Debug.WriteLine("Adding Script...");
+                    Debug.WriteLine("Adding Script..." + date.EventScript.Values.ToString());
                     var data = asset.AsDictionary<string, string>().Data;
                     foreach (var item in date.EventScript)
+                    {
+                        if (data.Keys.Contains(item.Key))
+                        {
+                            data[item.Key] = item.Value;
+                            continue;
+                        }
                         data.Add(item);
-                    date = null;
+                    }
                 });
             }
 
@@ -518,14 +593,7 @@ namespace LoveFestival
                     asset.AsDictionary<string, string>().Data.Add($"winter{festivalDate}", I18n.Festival_Name());
                 });
             }
-            else if (e.NameWithoutLocale.IsEquivalentTo("Data/Events/Beach"))
-            {
-                e.Edit((IAssetData asset) =>
-                {
-
-                });
-            }
-            else if (e.NameWithoutLocale.IsEquivalentTo("Data/mail"))
+            else if (e.NameWithoutLocale.IsEquivalentTo("Data/Mail"))
             {
                 e.Edit((IAssetData asset) =>
                 {
