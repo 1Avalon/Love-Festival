@@ -21,10 +21,15 @@
           "Items": [
             {
               "AvailableStockLimit": "Player",
+              "AvailableStock": 3,
               "Price": 1000,
-              "Id": "(O){{ModId}}_LoveLetter",
-              "ItemId": "(O){{ModId}}_LoveLetter",
-              "MaxStack": 5
+              "Id": "{{ModId}}_LoveLetter",
+              "ItemId": "(O){{ModId}}_LoveLetter"
+            },
+            {
+              "Price": 350,
+              "Id": "{{ModId}}_RosePot",
+              "ItemId": "{{ModId}}_RosePot" //(BO)
             }
           ]
         }
