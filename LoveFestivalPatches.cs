@@ -166,7 +166,7 @@ namespace LoveFestival
 
             if (Game1.Date.DayOfMonth == ModEntry.festivalDate && Game1.Date.Season == Season.Winter || ModEntry.isValentinesFestival) // perhaps use static field so the leaves will rain when getting to the festival although its not happening "natural"
             {
-                int num = Game1.random.Next(32, 64);
+                int num = Game1.random.Next(32, 96);
                 for (int i = 0; i < num; i++)
                 {
                     Game1.debrisWeather.Add(new WeatherDebris(new Vector2((float)Game1.random.Next(0, Game1.viewport.Width), (float)Game1.random.Next(0, Game1.viewport.Height)), 2, (float)Game1.random.Next(15) / 500f, (float)Game1.random.Next(-10, 0) / 50f, (float)Game1.random.Next(10) / 50f));
