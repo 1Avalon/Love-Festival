@@ -181,7 +181,6 @@ namespace LoveFestival
             var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             api.RegisterToken(this.ModManifest, "DatePartnerName", () =>
             {
-                Logger.Log_Info("Reload Token");
                 if (datePartner != null)
                     return new[] { datePartner.Name };
 
@@ -190,8 +189,6 @@ namespace LoveFestival
 
                 if (Config.TestNpcDateName != null || Config.TestNpcDateName != "")
                     return new[] { Config.TestNpcDateName };
-
-
 
                 return null;
             });
@@ -224,7 +221,6 @@ namespace LoveFestival
                 {
                     dateLetter = DateLetter.getRandomDateLetter();
                     letter = dateLetter;
-                    Logger.Log_Info(letter.Content);
                 }
                 else
                 {
@@ -300,17 +296,28 @@ namespace LoveFestival
                 Monitor.Log("NPC NOT FOUND", LogLevel.Error);
                 return;
             }
+            else if (datePartner.Name == "Vincent" || datePartner.Name == "Jas") //TODO figure out how to check if NPC is child or not
+            {
+                datePartner = oldDatePartner;
+                Monitor.Log("NPC not supported");
+                return;
+            }
             //Game1.warpFarmer("FarmHouse", 1, 1, false);//warp to random location so CP token will load
             Dictionary<string, ModDate> modDates = Helper.GameContent.Load<Dictionary<string, ModDate>>(modDateEntryKey);
+
+            if (!modDates.ContainsKey(dateId)) 
+            {
+                Monitor.Log("Date not found", LogLevel.Error);
+                return;
+            }
 
             date = modDates[dateId];
             Helper.GameContent.InvalidateCache($"Data\\Events\\{date.Location}");
 
-            Dictionary<string, string> dict = Helper.GameContent.Load<Dictionary<string, string>>($"Data\\Events\\{date.Location}");
+            Helper.GameContent.Load<Dictionary<string, string>>($"Data\\Events\\{date.Location}");
 
-            Logger.Log_Info(dict.ToString());
             bool x = Game1.PlayEvent(dateId, false, false);
-            Logger.Log_Info(x.ToString());
+            Logger.Log_Info(x == true ? "Sucessfully loaded date" : "Date was found by Love Festival but not by Stardew Valley");
             datePartner = oldDatePartner;
             date = oldDate;
 
@@ -328,7 +335,6 @@ namespace LoveFestival
             {
                 Helper.Data.WriteSaveData("DateLetter", dateLetter);
                 DateLetter test = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
-                Logger.Log_Info(test?.Content);
                 Logger.Log_Trace("Saved Date Data");
             }
             if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt) //More consistent
@@ -339,7 +345,6 @@ namespace LoveFestival
         }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
-            Logger.Log_Info(e.NewLocation.Name);
 
             if (e.OldLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate || e.OldLocation.Name == "Temp" && isValentinesFestival)
             {
@@ -398,6 +403,15 @@ namespace LoveFestival
             {
                 Logger.Log_Info($"Found {modLetters.Count} dates for Love Festival");
                 hasDateContentPacks = true;
+            }
+            
+            if (hasDateContentPacks)
+            {
+                foreach(var item in modLetters)
+                {
+                    Game1.player.eventsSeen.Remove(item.Value.DateId);
+                }
+                Logger.Log_Info("Removed all dates from player.eventsSeen");
             }
 
             foreach (var translation in Helper.Translation.GetTranslations())
@@ -488,7 +502,7 @@ namespace LoveFestival
                     {
                         isGoingOnDate = true;
                         datePartner = npc;
-                        Logger.Log_Info(npc.Name);
+                        Logger.Log_Trace($"{datePartner.Name} will ask for a date");
                         commands += $"/warp {npc.Name} 39 38/move {npc.Name} 0 -11 0/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} 0 11 0/warp {npc.Name} -1000 -1000";
                         continue;
                     }
