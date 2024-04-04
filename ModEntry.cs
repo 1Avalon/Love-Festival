@@ -567,6 +567,10 @@ namespace LoveFestival
             {
                 e.LoadFromModFile<Map>("assets/Town-LoveFestival.tbin", AssetLoadPriority.Exclusive);
             }
+            else if (e.NameWithoutLocale.IsEquivalentTo("Maps/BeachDateOceanSky"))
+            {
+                e.LoadFromModFile<Map>("assets/BeachDateOceanSky.tbin", AssetLoadPriority.Exclusive);
+            }
             else if (date != null && e.NameWithoutLocale.IsEquivalentTo($"Data/Events/{date.Location}"))
             {
                 e.Edit((IAssetData asset) =>
