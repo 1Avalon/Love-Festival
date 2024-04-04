@@ -4,7 +4,7 @@
   "Version": "1.3.0",
   "Description": "Adds shops and items to Love Festival",
   "UniqueID": "AvalonMFX.CPLoveFestival",
-  "UpdateKeys": [], // when you release the mod, see https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks
+  "UpdateKeys": [ "Nexus:17819" ], // when you release the mod, see https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks
   "ContentPackFor": {
     "UniqueID": "Pathoschild.ContentPatcher"
   },
