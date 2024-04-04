@@ -1,7 +1,7 @@
 @ECHO OFF
 
-SET "source=C:\Users\axj30\Desktop\Coding\LoveFestival\LoveFestival\[CP] Love Festival Default Dates"
-SET "target=D:\SteamLibrary\steamapps\common\Stardew Valley\mods\[CP] Love Festival Default Dates"
+SET "source=%cd%\content_packs"
+SET "target=C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods\LoveFestivalContentPacks"
 
 REM Führe robocopy aus, um nur unterschiedliche Dateien zu kopieren
 robocopy "%source%" "%target%" /E /XO /L
