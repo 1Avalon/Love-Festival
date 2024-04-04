@@ -7,10 +7,7 @@ using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using xTile.Dimensions;
+using LoveFestival.UI;
 using Location = xTile.Dimensions.Location;
 
 namespace LoveFestival

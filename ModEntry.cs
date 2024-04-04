@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using xTile;
 using StardewValley.Delegates;
 using ContentPatcher;
+using LoveFestival.UI;
 
 namespace LoveFestival
 {
