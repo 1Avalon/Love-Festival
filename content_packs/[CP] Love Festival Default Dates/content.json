@@ -1,15 +1,50 @@
 {
-  "Format": "1.29.3",
+  "Format": "2.0.1",
   "Changes": [
+    {
+      "Action": "EditData",
+      "Target": "AvalonMFX.LoveFestival/DateLetters",
+      "Entries": {
+        "{{ModId}}_CoffeeDate": { // I recommend you to name your entries like that in order to avoid conflicts
+          // Note: The {{AvalonMFX.LoveFestival/DatePartnerName}} Token is not ready when the Date Letters are needed. Don't use that token here. Otherwise, the game might break during the festival
+          "DateId": "AvalonMFX.CoffeeDate", // the date you're referring to
+          "Content": "Hi @... < ^I was wondering if you can tell me a bit about your experience on the farm. You seem to be putting much effort into it. Everyone is praising it so I am very curious. ^Would you like to meet me in the afternoon at Gus' place to have a coffee and tell me a bit about it?", // No need to add the NPC name token here. Love Festival will automatically add it
+          "AcceptDateResponse": "Thank you so much, @$h.#$b#I am so excited.#$b#Meet me between 2pm and 5pm at Gus' place in {DAYS_UNTIL_DATE} day(s)." // Dialogue of NPC when agreeing to date
+        },
+        "{{ModId}}_BeachDate": {
+          "DateId": "AvalonMFX.BeachDate", // alternatively, use {{ModId}}.Beachdate to ensure there will be no conflicts
+          "Content": "Hey @! < I hope you're doing well. I was thinking, how about we take some time to enjoy the beauty of the winter sky together? I've heard that winter nights in Stardew Valley offer some incredible stargazing opportunities. They say that catching a shooting star during winter isn't that uncommon around here.",
+          "AcceptDateResponse": "Thanks, @.$h#$b#Meet me at the beach between 8pm and 10pm in {DAYS_UNTIL_DATE} day(s).#$b#I'm looking forward to it.$h"
+        }
+      }
+    },
     {
       "Action": "EditData",
       "Target": "AvalonMFX.LoveFestival/Dates",
       "Entries": {
-        "CoffeeDate": {
-          "mapName": "Saloon",
-          "DateLetterContent": "Hi @... < ^I was wondering if you can tell me a bit about your experience on the farm. You seem to be putting much effort into it. Everyone is praising it so I am very curious. ^Would you like to meet me in the afternoon at Gus' place to have a coffee and tell me a bit about it? ^^-{{AvalonMFX.LoveFestival/DatePartner}}",
-          "AcceptingDateResponse": "Thank you so much, @$h.#$b#I am so excited.#$b#Meet me between 2pm and 5pm at Gus' place in {{AvalonMFX.LoveFestival/DaysUntilDate}} days."
+        "AvalonMFX.CoffeeDate": {
+          "Location": "Saloon", // The location of your date e.g.: Saloon, SeedShop, ...
+          "Condition": "AvalonMFX.CoffeeDate/t 1400 1700", // needed for dynamic injection (I recommend to only add a time argument)
+          "EventScript": {
+            // MAKE SURE THE UID IS EQUAL TO YOUR DATE ID. LOADING A SAVE REMOVES THIS ID FROM SEEN EVENTS. OTHERWISE, DATES CAN ONLY BE PLAYED ONCE PER SAVE (most likely the reality but anyway). THERE CAN ONLY BE ONE DATE PER TIME. THERE WON'T BE CONFLICTS BECAUSE OF THE SAME ID
+            "AvalonMFX.CoffeeDate/t 1400 1700": "title_night/14 20/farmer 14 23 0 {{AvalonMFX.LoveFestival/DatePartnerName}} 11 20 2 Gus 12 18 2/skippable/friendship {{AvalonMFX.LoveFestival/DatePartnerName}} 50/move farmer 0 -2 0/move farmer -2 0 3/move farmer 0 -1 0/faceDirection farmer 3/pause 500/faceDirection {{AvalonMFX.LoveFestival/DatePartnerName}} 1/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Hi @.$h#$b#Thanks for coming, I already ordered a coffee for you.\"/pause 500/farmerEat 395/pause 3500/emote farmer 32/pause 500/faceDirection farmer 3/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Did you enjoy the Love Festival, @?\"/pause 200/emote Gus 16/pause 200/speak Gus \"I see...#$b#You met at the Love Festival.$h\"/pause 500/faceDirection {{AvalonMFX.LoveFestival/DatePartnerName}} 0/faceDirection farmer 0/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"That's correct, Gus.$h\"/pause 500/speak Gus \"It's always a pleasure to take part at the festival.$h#$b#When I was young, there was no Love Festival.$s#$b#The winter was cold and melancholic.$s\"/pause 1000/speak Gus \"I remember, Major Lewis sent a letter to everyone, announcing this event for the very first time.#$b#It happened out of sudden and we didn't know what to expect.\"/pause 500/speak Gus \"I assume, he has a crush on somebody. The Love Festival is the perfect opportunity to get closer with people.$h#$b#Yet, his crush is unknown.#$b#Perhaps, you'll figure it out one day.$h\"/pause 500/speak Gus \"Meanwhile, the Love Festival is the reason for many good relationships.$h\"/globalFade/viewport -1000 -1000/pause 500/message \"After the talk with Gus, you had a great conversation with {{AvalonMFX.LoveFestival/DatePartnerName}}.\"/warp farmer 45 73/faceDirection farmer 3/warp {{AvalonMFX.LoveFestival/DatePartnerName}} 44 73/faceDirection {{AvalonMFX.LoveFestival/DatePartnerName}} 1/changeLocation Town/viewport 45 73/pause 2000/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Thanks again for coming, @.$h#$b#I hope you had as much fun as I had.\"/pause 1000/emote {{AvalonMFX.LoveFestival/DatePartnerName}} 28/pause 500/question fork1 \"Hug {{AvalonMFX.LoveFestival/DatePartnerName}}?#Yes#No\"/fork LoveFestivalNoHug/friendship {{AvalonMFX.LoveFestival/DatePartnerName}} 30/positionOffset farmer -12 0/positionOffset {{AvalonMFX.LoveFestival/DatePartnerName}} 12 0/showKissFrame {{AvalonMFX.LoveFestival/DatePartnerName}} true/animate farmer true true 100 101/pause 500/stopAnimation farmer/positionOffset farmer 0 0/stopAnimation {{AvalonMFX.LoveFestival/DatePartnerName}}/positionOffset {{AvalonMFX.LoveFestival/DatePartnerName}} 0 0/pause 500/emote farmer 20/emote {{AvalonMFX.LoveFestival/DatePartnerName}} 20/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Thank you, @.$h#$b#See you soon.$h\"/move {{AvalonMFX.LoveFestival/DatePartnerName}} -5 0 3 true/pause 500/globalFade/viewport -1000 -1000/end warpOut"
+          }
+        },
+        "AvalonMFX.BeachDate": {
+          "Location": "Beach",
+          "Condition": "AvalonMFX.BeachDate/t 2000 2200",
+          "EventScript": {
+            "AvalonMFX.BeachDate/t 2000 2200": "ocean/12 38/farmer 12 33 2 {{AvalonMFX.LoveFestival/DatePartnerName}} 11 38 2/skippable/friendship {{AvalonMFX.LoveFestival/DatePartnerName}} 50/move farmer  0 5 2/pause 500/faceDirection farmer 3/faceDirection {{AvalonMFX.LoveFestival/DatePartnerName}} 1/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Hi @.$h#$b#I was waiting for you.\"/pause 250/emote farmer 32/pause 250/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"I hope you didn't have different expectations.$s#$b#I know this isn't a perfect place for a date.$s#$b#But right now, I'm really enjoying the feeling.$h#$b#The atmosphere around here is great.\"/pause 250/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"What do you think, @?\"/quickquestion #This is silly#The ambient relaxes me(break)pause 300\\speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Well if you have a better idea, let me know.$s\"\\pause 300\\emote {{AvalonMFX.LoveFestival/DatePartnerName}} 12(break)emote {{AvalonMFX.LoveFestival/DatePartnerName}} 32\\speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"I'm glad youre enjoying, @.$h\"(break)pause 500/faceDirection {{AvalonMFX.LoveFestival/DatePartnerName}} 2/pause 250/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Now, take a look in the distance.$h\"/pause 200/faceDirection farmer 2/globalFade/viewport -1000 -1000/changeToTemporaryMap BeachDateOceanSky/globalFadeToClear/playMusic night_market/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Doesn't it look nice?$h\"/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Let's hope a shooting star will pass by.$h\"/pause 5000/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"...$s\"/globalFade/viewport -1000 -1000/message \"You waited a while with {{AvalonMFX.LoveFestival/DatePartnerName}} but nothing happened. {{AvalonMFX.LoveFestival/DatePartnerName}} is sad.\"/changeLocation Beach/viewport 16 38/pause 1000/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Unfortunately, we didnt see a shooting star tonight.$s\"/pause 200/emote {{AvalonMFX.LoveFestival/DatePartnerName}} 28/question fork1 \"What should I say?#Don't be sad (hug {{AvalonMFX.LoveFestival/DatePartnerName}})#Stop crying. It's pointless\"/fork pointless/friendship {{AvalonMFX.LoveFestival/DatePartnerName}} 30/faceDirection farmer 3/pause 200/faceDirection {{AvalonMFX.LoveFestival/DatePartnerName}} 1/emote {{AvalonMFX.LoveFestival/DatePartnerName}} 8/pause 500/positionOffset farmer -12 0/positionOffset {{AvalonMFX.LoveFestival/DatePartnerName}} 12 0/showKissFrame {{AvalonMFX.LoveFestival/DatePartnerName}} true/animate farmer true true 100 101/pause 1500/stopAnimation farmer/positionOffset farmer 0 0/stopAnimation {{AvalonMFX.LoveFestival/DatePartnerName}}/positionOffset {{AvalonMFX.LoveFestival/DatePartnerName}} 0 0/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"That really helped, @.$h\"/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Thank's for cheering me up.\"/pause 1000/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"It's getting late.$s#$b#I wish I could stay for another while but...$s#$b#I should get going.$s\"/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Thanks for your company tonight, @.#$b#See you soon.$h\"/move {{AvalonMFX.LoveFestival/DatePartnerName}} 0 -5 0 true/pause 500/globalFade/viewport -1000 -1000/end",
+            "pointless": "friendship {{AvalonMFX.LoveFestival/DatePartnerName}} -30/pause 300/emote {{AvalonMFX.LoveFestival/DatePartnerName}} 12/pause 300/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Fine...$a#$b#Seems like you weren't really interested.$s\"/pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"I better leave now.$s#$b#It's getting pretty late.$s\"/move {{AvalonMFX.LoveFestival/DatePartnerName}} 0 -5 0 true/pause 500/globalFade/viewport -1000 -1000/end"
+          }
         }
+      }
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Events/Town",
+      "Entries": { // When warping to Town during coffee date, it tries to access the LoveFestivalNoHug fork from the Data/Events/Town asset so I insert it there
+        "LoveFestivalNoHug": "pause 500/speak {{AvalonMFX.LoveFestival/DatePartnerName}} \"Well, I should get going...$s#$b#See you, @.$s\"/move {{AvalonMFX.LoveFestival/DatePartnerName}} -5 0 3 true/pause 500/globalFade/viewport -1000 -1000/end warpOut"
       }
     }
   ]
