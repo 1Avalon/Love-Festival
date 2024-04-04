@@ -12,12 +12,26 @@ namespace LoveFestival
 
         public string Attachment = null;
 
-        public string ContentWithAttachment()
-        {
-            if (Attachment == null)
-                return Content;
+        public string FullLetter;
 
-            return Content + "^^-NPCNAME < " + Attachment;
+        public string ContentWithAttachment(string substitutableNpcName = null)
+        {
+
+            Attachment ??= "";
+
+            string basic = Content.Contains(substitutableNpcName) ? Content + " " + Attachment : Content + "^^-NPCNAME < " + Attachment;
+
+            if (substitutableNpcName != null)
+            {
+                string basic2 = basic.Replace("NPCNAME", substitutableNpcName);
+                FullLetter = basic2.Replace("{DATEPARTNER_NAME}", substitutableNpcName); // just for safety optimise later
+            }
+
+            return FullLetter;
+        }
+        public bool HasItem()
+        {
+            return Attachment.Contains("%item object");
         }
     }
 
