@@ -9,11 +9,8 @@
   "UpdateKeys": [ "Nexus:17819" ],
   "Dependencies": [
     {
-      "UniqueID": "spacechase0.JsonAssets"
-    },
-    {
       "UniqueID": "Pathoschild.ContentPatcher",
-      "isRequired": false
+      "isRequired": true
     }
   ]
 }
