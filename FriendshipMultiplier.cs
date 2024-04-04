@@ -13,7 +13,7 @@ namespace LoveFestival
 
         public float amount = 1.2f;
 
-        public int expiresAt = ModEntry.festivalDate + 7;
+        public int expiresAt = ModEntry.festivalDate + 8;
 
         public FriendshipMultiplier(string targetName) 
         { 
