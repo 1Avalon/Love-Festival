@@ -19,11 +19,19 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <Folder Include="content_packs\[CP] Love Festival Default Dates\assets\" />
+    <Folder Include="content_packs\[CP] Love Festival\i18n\" />
+    <Folder Include="content_packs\[CP] Love Festival\big_craftables\" />
+    <Folder Include="content_packs\[CP] Love Festival\shops\" />
     <Folder Include="[CP] Love Festival Default Dates\" />
   </ItemGroup>
     
   <PropertyGroup>
 	<IgnoreModFilePaths>assets/valentines_sheet.ase, assets/Town-LoveFestival.tmx, assets/valentines_sheet.tsx, assets/.characterSheet.png, assets/.Festivals.png, assets/.winter_town.png, assets/.paths.png, assets/.winter_outdoorsTileSheet.png</IgnoreModFilePaths>	
+  </PropertyGroup>
+	
+  <PropertyGroup>
+	<PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
   </PropertyGroup>
     
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
