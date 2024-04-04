@@ -65,9 +65,13 @@
   "SendLetter.No": "Abbrechen",
 
   //Lewis Start message
-  "StartMessage.Question": "Möchtest du starten?",
+  "StartMessage.Question": "@! Bist du bereit, deine Liebesbriefe zu erhalten?",
   "StartMessage.AnswerYes": "Ja",
   "StartMessage.AnswerNo": "Nein",
+
+  //Dates
+  "LoveFestivalDates.Question": "Gehe auf Date mit {{npc}?",
+  "LoveFestivalDates.DateRejected": "Oh Ich verstehe...$s#$b#Du bist zu sehr mit deiner Farm beschäftigt.$s",
 
   //Letter Given Reactions
   "ReceiveLetterReaction.Flattered": "Als ob du mich ausgewählt hast. Ich bin geschmeichelt.$h",
@@ -79,10 +83,17 @@
   "npcGiftingLetter.AskValentine": "Ehmmm..., @$h#$b#Willst du, dass wir uns ein wenig näher sind? Schau, was ich für dich gemacht habe.$h",
   "npcGiftingLetter.ExpressFeelings": "Hey @, Ich weiß, dass du eventuell was anderes fühlst, aber trotzdem. Ich wollte dir nur von meinen Gefühlen erzählen.$h",
   "npcGiftingLetter.Admire": "Hey @...#$b#Ich bewundere immer dich und die Arbeit, die du auf deiner Farm tätigst. Es ist ziemlich beeindruckend und bringt etwas Frische in unser Tal.#$b#Dehalb gebe ich dir das hier.$h",
+  "npcGiftingLetter.AskForDate": "Hey @...#$b#Ich glaube, dass Geschenke langweilig sind. Das ist der Grund warum ich dich nach einen Date frage.$h#$b#Schau dir das an.",
 
   //Extras
   "MarnieReaction.Start": "Okay @, es ist Zeit, deine Liebesbriefe zu erhalten.",
-  "MarnieReaction.NoLoveLetters": "Oh naja, sieht so aus, als will niemand dieses Jahr dir Liebesbriefe geben wollen.$s",
-  "JealousyDialogue.Spouse": "Übrigens, Ich schätze es sehr, dass du mir nicht deinen Liebesbrief gegeben hast...$s",
-
+  "MarnieReaction.NoLoveLetters": "Oh naja, sieht so aus als würde dir dieses Jahr niemand Liebesbriefe geben wollen.$s",
+  "JealousyDialogue.Spouse": "Ich schätze es übrigens sehr, dass du mir nicht deinen Liebesbrief gegeben hast,$s",
+  "Calendar.ChooseDate": "Wähle einen Tag für dein Date aus (Festivals ausgeschlossen)",
+  "CupidStore.BuyArrow": "Hey dz... Ich kann jemanden mit einen Liebespfeil abschießen. Es wird den Erhalt von Freunschaftspunkten um eine Woche drastisch erhöhen. Willst du es versuchen?",
+  "CupidStore.Yes": "Ja (2500g)",
+  "CupidStore.Success": "Du erhälst nun 20% mehr Freundschaftspunkte mit {{name}} für eine Woche.",
+  "CupidStore.AlreadyBought": "Du hast bereits einen Freundschaftsmultiplikator gekauft.",
+  "Misc.NotEnoughMoney": "Du hast nicht genug Gold.",
+  "CupidStore.Menu.UIHint": "Wähle dein Ziel aus"
 }
