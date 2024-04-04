@@ -9,7 +9,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoveFestival
+namespace LoveFestival.UI
 {
     public class GameMenuWrapper : GameMenu
     {
