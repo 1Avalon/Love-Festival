@@ -32,8 +32,6 @@ namespace LoveFestival
 
         public static Texture2D greenRoseDebris;
 
-        public static Texture2D beachNightSky;
-
         public static List<NPC> npcs;
 
         public static ModConfig Config;
@@ -94,7 +92,6 @@ namespace LoveFestival
             bgLoveLetter = Helper.ModContent.Load<Texture2D>("assets/love_letter_bg");
             redRoseDebris = Helper.ModContent.Load<Texture2D>("assets/red_rose_debris");
             greenRoseDebris = Helper.ModContent.Load<Texture2D>("assets/green_rose_debris");
-            beachNightSky = Helper.ModContent.Load<Texture2D>("assets/OceanSkySheet");
 
             helper.Events.Content.AssetRequested += this.OnAssetRequest;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
@@ -115,12 +112,12 @@ namespace LoveFestival
             Harmony harmony = new(this.ModManifest.UniqueID);
             //harmony.PatchAll();
             harmony.Patch(
-                original: AccessTools.Method(typeof(LetterViewerMenu), nameof(LetterViewerMenu.draw), new Type[] {typeof(SpriteBatch)}),
+                original: AccessTools.Method(typeof(LetterViewerMenu), nameof(LetterViewerMenu.draw), new Type[] { typeof(SpriteBatch) }),
                 prefix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Prefix_CustomLetterBackgroundPatch))
                 );
 
             harmony.Patch(
-                original: AccessTools.Method(typeof(NPC), nameof(NPC.setNewDialogue), new Type[] {typeof(string), typeof(bool), typeof(bool)}),
+                original: AccessTools.Method(typeof(NPC), nameof(NPC.setNewDialogue), new Type[] { typeof(string), typeof(bool), typeof(bool) }),
                 prefix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Prefix_setNewDialogue))
                 );
 
@@ -174,7 +171,7 @@ namespace LoveFestival
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            Event.RegisterCommand("showLoveLetter", (EventCommandDelegate) Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(showLoveLetter_command))));
+            Event.RegisterCommand("showLoveLetter", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(showLoveLetter_command))));
             Event.RegisterCommand("askForDate", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command))));
             Monitor.Log("Game crashed due to Love Festival? Make sure to update to the newest version if you haven't done it yet. There are new bug fixes every update!", LogLevel.Warn);
             var api = this.Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
@@ -213,7 +210,7 @@ namespace LoveFestival
         public static void showLoveLetter_command(Event instance, string[] split, EventContext context)
         {
             IClickableMenu acm = Game1.activeClickableMenu;
-            if (acm is not LetterViewerMenu && acm is not ItemGrabMenu|| acm is DialogueBox) 
+            if (acm is not LetterViewerMenu && acm is not ItemGrabMenu || acm is DialogueBox)
             {
                 ModLetter letter;
                 string authorName = split[1].Split("_")[0];
@@ -231,7 +228,7 @@ namespace LoveFestival
                 LetterViewerMenu menu = new LetterViewerMenu(msg, split[1]);
                 menu.exitFunction = () =>
                 {
-                        instance.currentCommand++;
+                    instance.currentCommand++;
                 };
                 Game1.activeClickableMenu = menu;
             }
@@ -250,36 +247,36 @@ namespace LoveFestival
                 NPC npc = Game1.getCharacterFromName(character);
                 Game1.currentLocation.createQuestionDialogue(I18n.LoveFestivalDates_Question(npc: character), choices.ToArray(),
                     new GameLocation.afterQuestionBehavior((Farmer who, string dialogue_id) =>
-                {
-                    if (dialogue_id == "dateAccepted")
                     {
-                        Game1.activeClickableMenu = null;
-                        BillboardWrapper wrapper = new BillboardWrapper();
-
-                        wrapper.exitFunction = () =>
+                        if (dialogue_id == "dateAccepted")
                         {
-                            dateLetter.day = wrapper.day;
-                            Debug.WriteLine($"Having date on day {wrapper.day}");
-                            dateLetter.LoadDaysUntillDateToken();
-                            dateLetter.NpcName = npc.Name;
-                            Dialogue dialogue = new(npc, null, dateLetter.AcceptDateResponse);
+                            Game1.activeClickableMenu = null;
+                            BillboardWrapper wrapper = new BillboardWrapper();
+
+                            wrapper.exitFunction = () =>
+                            {
+                                dateLetter.day = wrapper.day;
+                                Debug.WriteLine($"Having date on day {wrapper.day}");
+                                dateLetter.LoadDaysUntillDateToken();
+                                dateLetter.NpcName = npc.Name;
+                                Dialogue dialogue = new(npc, null, dateLetter.AcceptDateResponse);
+                                npc.CurrentDialogue.Push(dialogue);
+                                Game1.drawDialogue(npc);
+                            };
+                            Game1.activeClickableMenu = wrapper;
+
+                            //modHelper.GameContent.InvalidateCache(dateLetter.CachePath);
+                        }
+
+                        else
+                        {
+                            Dialogue dialogue = new Dialogue(npc, null, I18n.LoveFestivalDates_DateRejected());
                             npc.CurrentDialogue.Push(dialogue);
                             Game1.drawDialogue(npc);
-                        };
-                        Game1.activeClickableMenu = wrapper;
+                        }
 
-                        //modHelper.GameContent.InvalidateCache(dateLetter.CachePath);
-                    }
-
-                    else
-                    {
-                        Dialogue dialogue = new Dialogue(npc, null, I18n.LoveFestivalDates_DateRejected());
-                        npc.CurrentDialogue.Push(dialogue);
-                        Game1.drawDialogue(npc);
-                    }
-                        
                         //Game1.DrawDialogue(npc, null, I18n.LoveFestivalDates_DateRejected());
-                }));
+                    }));
             }
         }
 
@@ -305,7 +302,7 @@ namespace LoveFestival
             //Game1.warpFarmer("FarmHouse", 1, 1, false);//warp to random location so CP token will load
             Dictionary<string, ModDate> modDates = Helper.GameContent.Load<Dictionary<string, ModDate>>(modDateEntryKey);
 
-            if (!modDates.ContainsKey(dateId)) 
+            if (!modDates.ContainsKey(dateId))
             {
                 Monitor.Log("Date not found", LogLevel.Error);
                 return;
@@ -334,7 +331,7 @@ namespace LoveFestival
             else if (dateLetter != null)
             {
                 Helper.Data.WriteSaveData("DateLetter", dateLetter);
-                DateLetter test = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
+                Helper.Data.ReadSaveData<DateLetter>("DateLetter");
                 Logger.Log_Trace("Saved Date Data");
             }
             if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt) //More consistent
@@ -353,7 +350,7 @@ namespace LoveFestival
                 Game1.debrisWeather.Clear();
                 isValentinesFestival = false;
                 isGoingOnDate = false;
-                
+
                 if (loveLetterNotGivenToSpouse)
                 {
                     NPC spouse = Game1.getCharacterFromName(Game1.player.spouse);
@@ -370,7 +367,7 @@ namespace LoveFestival
                 hasSeenDate = true;
                 //Helper.Data.WriteSaveData<DateLetter>("DateLetter", null); //instead add a bool and run this when saving otherwise the player cant see the event again if he doesnt save
             }
-            else if(e.NewLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate && Game1.timeOfDay <= 1400)
+            else if (e.NewLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate && Game1.timeOfDay <= 1400)
             {
                 Logger.Log_Trace("Attended Love Festival. Getting Main Event script...");
                 mainEventScript = getMainEvent();
@@ -404,10 +401,10 @@ namespace LoveFestival
                 Logger.Log_Info($"Found {modLetters.Count} dates for Love Festival");
                 hasDateContentPacks = true;
             }
-            
+
             if (hasDateContentPacks)
             {
-                foreach(var item in modLetters)
+                foreach (var item in modLetters)
                 {
                     Game1.player.eventsSeen.Remove(item.Value.DateId);
                 }
@@ -426,7 +423,7 @@ namespace LoveFestival
             }
         }
         private void OnDayStarted(object? sender, DayStartedEventArgs e)
-        { 
+        {
             WorldDate date = Game1.Date;
 
             if (date.DayOfMonth == 6 && date.Season == Season.Winter)
@@ -516,9 +513,9 @@ namespace LoveFestival
             }
             return commands;
         }
-        private void OnUpdateTicking(object?sender, EventArgs e)
+        private void OnUpdateTicking(object? sender, EventArgs e)
         {
-            if (Game1.activeClickableMenu is DialogueBox box && box.getCurrentString() == dialogueToBeReplaced && Game1.isFestival() && isValentinesFestival 
+            if (Game1.activeClickableMenu is DialogueBox box && box.getCurrentString() == dialogueToBeReplaced && Game1.isFestival() && isValentinesFestival
                 || Game1.activeClickableMenu is DialogueBox box2 && GetSpouseDialogues().Contains(box2.getCurrentString()) && seenSpouseDialogue && isValentinesFestival) //TODO check if box.getCurrentString is equal to spouse dialogue and if player has seen spouse dialogue / code function for getting spouse dialogue using i18n
             {
                 box = Game1.activeClickableMenu as DialogueBox;
@@ -527,7 +524,7 @@ namespace LoveFestival
                     return;
 
                 NPC npc = box.characterDialogue.speaker;
-                List <Response> responses = new()
+                List<Response> responses = new()
                 {
                     new Response("loveLetter", I18n.SendLetter_Yes(name: npc.Name)),
                     new Response("no", I18n.SendLetter_No())
