@@ -8,6 +8,6 @@ namespace LoveFestival
 {
     public sealed class ModConfig
     {
-        public string TestNpcDateName { get; set; }
+        public string TestNpcDateName { get; set; } = "Haley";
     }
 }
