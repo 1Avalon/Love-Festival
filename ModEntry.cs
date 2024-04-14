@@ -70,6 +70,8 @@ namespace LoveFestival
 
         public static readonly int festivalDate = 6;
 
+        public static readonly Season festivalSeason = Season.Winter; //TODO instead of checking for winter, check for festivalSeason
+
         public static FriendshipMultiplier multiplier;
 
         private static bool hasDateContentPacks = false;
@@ -173,7 +175,6 @@ namespace LoveFestival
         {
             Event.RegisterCommand("showLoveLetter", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(showLoveLetter_command))));
             Event.RegisterCommand("askForDate", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(LoveFestival_AskForDate_command))));
-            Monitor.Log("Game crashed due to Love Festival? Make sure to update to the newest version if you haven't done it yet. There are new bug fixes every update!", LogLevel.Warn);
             var api = this.Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
             var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             api.RegisterToken(this.ModManifest, "DatePartnerName", () =>
@@ -201,8 +202,8 @@ namespace LoveFestival
 
             configMenu.AddTextOption(
                 mod: this.ModManifest,
-                name: () => "Actor Name for Date Tests",
-                tooltip: () => "The name of the NPC who should act as a date partner when testing dates. Leave empty when you're not going to use it.",
+                name: () => I18n.Config_TestDateActorName(),
+                tooltip: () => I18n.Config_TestDateActorNameDescription(),
                 getValue: () => Config.TestNpcDateName,
                 setValue: value => Config.TestNpcDateName = value
             );

@@ -95,5 +95,9 @@
   "CupidStore.Success": "Successfully increased your friendship gain for a week by 20% with {{name}}.",
   "CupidStore.AlreadyBought": "You already bought a friendship multiplier.",
   "Misc.NotEnoughMoney": "You don't have enough money.",
-  "CupidStore.Menu.UIHint": "Select your target"
+  "CupidStore.Menu.UIHint": "Select your target & double click",
+
+  //Config
+  "Config.TestDateActorName": "Actor Name for Date Tests",
+  "Config.TestDateActorNameDescription": "The name of the NPC who should act as a date partner when testing dates. You can ignore it when you're not going to use it."
 }
