@@ -37,7 +37,7 @@ namespace LoveFestival.UI
         {
             base.draw(b);
             Game1.drawDialogueBox(this.xPositionOnScreen, this.yPositionOnScreen / 2 + height, this.width + 38, 200, false, true);
-            Utility.drawTextWithShadow(b, uiHint, Game1.dialogueFont, new Vector2(this.xPositionOnScreen + this.width / 4f, this.yPositionOnScreen + height + 30), Color.Black);
+            Utility.drawTextWithShadow(b, uiHint, Game1.dialogueFont, new Vector2((this.xPositionOnScreen + this.width) / 2f, this.yPositionOnScreen + height + yPositionOnScreen / 15f), Color.Black);
             if (npcSlot != null && npcSlot.bounds.Y > this.yPositionOnScreen && npcSlot.bounds.Y < this.yPositionOnScreen + 5 * npcSlot.bounds.Height)
                 b.Draw(Game1.staminaRect, new Rectangle(npcSlot.bounds.X, npcSlot.bounds.Y, npcSlot.bounds.Width, npcSlot.bounds.Height), Color.Green * 0.25f);
 
