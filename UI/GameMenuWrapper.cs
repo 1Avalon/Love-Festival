@@ -4,6 +4,7 @@ using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
@@ -20,6 +21,8 @@ namespace LoveFestival.UI
 
         private string targetName;
 
+        private int upperYLimit;
+
         private string uiHint = I18n.CupidStore_Menu_UIHint(); //TODO padding
     
         public GameMenuWrapper() : base(2) // 2 = SocialPage
@@ -34,8 +37,8 @@ namespace LoveFestival.UI
         {
             base.draw(b);
             Game1.drawDialogueBox(this.xPositionOnScreen, this.yPositionOnScreen / 2 + height, this.width + 38, 200, false, true);
-            Utility.drawTextWithShadow(b, uiHint, Game1.dialogueFont, new Vector2(this.xPositionOnScreen + this.width / 3f, this.yPositionOnScreen + height + 30), Color.Black);
-            if (npcSlot != null && npcSlot.bounds.Y > 155 && npcSlot.bounds.Y < 807)
+            Utility.drawTextWithShadow(b, uiHint, Game1.dialogueFont, new Vector2(this.xPositionOnScreen + this.width / 4f, this.yPositionOnScreen + height + 30), Color.Black);
+            if (npcSlot != null && npcSlot.bounds.Y > this.yPositionOnScreen && npcSlot.bounds.Y < this.yPositionOnScreen + 5 * npcSlot.bounds.Height)
                 b.Draw(Game1.staminaRect, new Rectangle(npcSlot.bounds.X, npcSlot.bounds.Y, npcSlot.bounds.Width, npcSlot.bounds.Height), Color.Green * 0.25f);
 
         }
@@ -48,7 +51,7 @@ namespace LoveFestival.UI
                 targetName = menu.Current.Character.Name;
             }
 
-            if (npcSlot != null && npcSlot.containsPoint(x, y) && npcSlot.bounds.Y > 155 && npcSlot.bounds.Y < 807)
+            if (npcSlot != null && npcSlot.containsPoint(x, y) && npcSlot.bounds.Y > this.yPositionOnScreen && npcSlot.bounds.Y < this.yPositionOnScreen + 5 * npcSlot.bounds.Height)
             {
                 Game1.playSound("reward");
                 Game1.player.Money -= 2500;
@@ -66,8 +69,11 @@ namespace LoveFestival.UI
                 }
 
                 ClickableComponent slot = page.characterSlots[i];
-                if (slot.bounds.Y > 155 && slot.bounds.Y < 807)
+                if (slot.bounds.Y > this.yPositionOnScreen && slot.bounds.Y < this.yPositionOnScreen + 5 * slot.bounds.Height)
+                {
                     npcSlot = slot;
+                    break;
+                }
             }
 
         }
