@@ -17,7 +17,7 @@
     {
       "LogName": "Add Love Letter Item",
       "Action": "Include",
-      "FromFile": "items/love_letter.json"
+      "FromFile": "items/box_of_chocolates.json"
     },
     {
       "LogName": "Add Love Rose Pot Item",

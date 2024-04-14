@@ -23,8 +23,8 @@
               "AvailableStockLimit": "Player",
               "AvailableStock": 3,
               "Price": 1000,
-              "Id": "{{ModId}}_LoveLetter",
-              "ItemId": "(O){{ModId}}_LoveLetter"
+              "Id": "{{ModId}}_BoxOfChocolates",
+              "ItemId": "{{ModId}}_BoxOfChocolates"
             },
             {
               "Price": 350,

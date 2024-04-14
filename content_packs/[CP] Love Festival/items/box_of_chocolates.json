@@ -4,10 +4,10 @@
       "Action": "EditData",
       "Target": "Data/Objects",
       "Entries": {
-        "{{ModId}}_LoveLetter": {
-          "Name": "{{ModId}}_LoveLetter",
-          "Displayname": "{{i18n: item.loveletter.name}}",
-          "Description": "{{i18n: item.loveletter.description}}",
+        "{{ModId}}_BoxOfChocolates": {
+          "Name": "{{ModId}}_BoxOfChocolates",
+          "Displayname": "{{i18n: item.boxofchocolates.name}}",
+          "Description": "{{i18n: item.boxofchocolates.description}}",
           "Price": 1000,
           "Texture": "Mods/{{ModId}}/Objects",
           "SpriteIndex": 0
@@ -21,7 +21,7 @@
         {
           "Operation": "Append",
           "Target": [ "Entries", "Universal_Love" ],
-          "Value": "{{ModId}}_LoveLetter",
+          "Value": "{{ModId}}_BoxOfChocolates",
           "Delimiter": " "
         }
       ]
