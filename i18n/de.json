@@ -95,5 +95,9 @@
   "CupidStore.Success": "Du erhälst nun 20% mehr Freundschaftspunkte mit {{name}} für eine Woche.",
   "CupidStore.AlreadyBought": "Du hast bereits einen Freundschaftsmultiplikator gekauft.",
   "Misc.NotEnoughMoney": "Du hast nicht genug Gold.",
-  "CupidStore.Menu.UIHint": "Wähle dein Ziel aus"
+  "CupidStore.Menu.UIHint": "Wähle dein Ziel aus & klicke doppelt",
+
+  //Config
+  "Config.TestDateActorName": "NPC-Name beim Testen von Dates",
+  "Config.TestDateActorNameDescription": "Der Name des NPCs, der als Schauspieler fungieren soll, wenn du Dates ausprobieren möchtest. Du kannst diese Einstellung ignorieren, wenn du diese nicht benutzen wirst."
 }
