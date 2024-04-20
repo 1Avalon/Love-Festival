@@ -427,12 +427,12 @@ namespace LoveFestival
         {
             WorldDate date = Game1.Date;
 
-            if (date.DayOfMonth == 6 && date.Season == Season.Winter)
+            if (date.DayOfMonth == 27 && date.Season == Season.Fall)
             {
                 Game1.player.mailbox.Add("VEInvitationLetterWeek");
             }
 
-            else if (date.DayOfMonth == 12 && date.Season == Season.Winter)
+            else if (date.DayOfMonth == festivalDate - 1 && date.Season == Season.Winter)
             {
                 Game1.player.mailbox.Add("VEInvitationLetterTomorrow");
                 //Game1.netWorldState.Value.WeatherForTomorrow = Game1.weatherForTomorrow = 2; //remove and check if it changes anything
