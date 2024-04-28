@@ -12,6 +12,9 @@ using xTile;
 using StardewValley.Delegates;
 using ContentPatcher;
 using LoveFestival.UI;
+using System.Linq;
+using System.Reflection;
+using StardewValley.Locations;
 
 namespace LoveFestival
 {
@@ -343,6 +346,11 @@ namespace LoveFestival
         }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
+            var originalMethods = Harmony.GetAllPatchedMethods();
+            foreach (var method in originalMethods) 
+            {
+                Debug.Write(method.Name + "\n");
+            }
 
             if (e.OldLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate || e.OldLocation.Name == "Temp" && isValentinesFestival)
             {
@@ -375,8 +383,48 @@ namespace LoveFestival
             }
         }
 
+        //CREDITS: Stole that method from KhloeLeclair because I had no idea how to convert IModInfo into IContentPack
+        internal IContentPack? GetContentPackFor(IModInfo mod)
+        {
+            IContentPack cp;
+
+            if (mod.IsContentPack && mod.GetType().GetProperty("ContentPack", BindingFlags.Instance | BindingFlags.Public)?.GetValue(mod) is IContentPack pack)
+                return pack;
+
+            else if (mod.GetType().GetProperty("DirectoryPath", BindingFlags.Instance | BindingFlags.Public)?.GetValue(mod) is string str)
+            {
+                cp = Helper.ContentPacks.CreateTemporary(
+                    directoryPath: str,
+                    id: $"leclair.theme-loader.${mod.Manifest.UniqueID}",
+                    name: mod.Manifest.Name,
+                    description: mod.Manifest.Description,
+                    author: mod.Manifest.Author,
+                    version: mod.Manifest.Version
+                );
+
+            }
+            else
+                return null;
+
+            return cp;
+        }
+
+
         private void OnSaveLoaded(object? sender, EventArgs e)
         {
+            var hasDateNight = Helper.ModRegistry.GetAll()
+                .Where(x => x.IsContentPack && x.Manifest.UniqueID.Equals("agentlyoko.datenightredux"))
+                .Select(x => GetContentPackFor(x));
+            IContentPack dateNightRedux = hasDateNight.First();
+
+            if (dateNightRedux.HasFile("data/TestDates.json"))
+            {
+                Monitor.Log("Found File");
+
+                object data = dateNightRedux.ReadJsonFile<object>("data/TestDates.json");
+                Debug.WriteLine(data.ToString());
+            }
+
             npcs = getAllNPCs();
             isValentinesFestival = false;
             date = null;
@@ -576,9 +624,9 @@ namespace LoveFestival
 
                 }, AssetLoadPriority.Exclusive);
             }
-            else if (e.NameWithoutLocale.IsEquivalentTo("Maps/Town-LoveFestival"))
+            else if (e.NameWithoutLocale.IsEquivalentTo("Maps/LoveFestivalMap"))
             {
-                e.LoadFromModFile<Map>("assets/Town-LoveFestival.tbin", AssetLoadPriority.Exclusive);
+                e.LoadFromModFile<Map>("assets/FestivalMap.tbin", AssetLoadPriority.Exclusive);
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Maps/BeachDateOceanSky"))
             {
@@ -634,7 +682,7 @@ namespace LoveFestival
             {
                 ["name"] = I18n.Festival_Name(),
                 ["conditions"] = "Town/900 1400",
-                ["set-up"] = "musicboxsong/-1000 -1000/farmer 1 54 2/changeToTemporaryMap Town-LoveFestival/loadActors Set-Up/animate Robin false true 500 20 21 20 22/animate Demetrius false true 500 24 25 24 26/playerControl LoveFestival17819",
+                ["set-up"] = "musicboxsong/-1000 -1000/farmer 1 54 2/changeToTemporaryMap LoveFestivalMap/loadActors Set-Up/animate Robin false true 500 20 21 20 22/animate Demetrius false true 500 24 25 24 26/playerControl LoveFestival17819",
                 ["mainEvent"] = $"globalFade/viewport -1000 -1000/warp farmer 39 26/faceDirection farmer 2/warp Marnie 38 26/faceDirection Marnie 2/warp Lewis 40 26/faceDirection Lewis 2/viewport 39 26/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end",
             };
             foreach (var translation in Helper.Translation.GetTranslations())
