@@ -30,6 +30,13 @@
               "Price": 350,
               "Id": "{{ModId}}_RosePot",
               "ItemId": "{{ModId}}_RosePot" //(BO)
+            },
+            {
+              "AvailableStockLimit": "Player",
+              "AvailableStock": 1,
+              "Price": 7500,
+              "Id": "460",
+              "ItemId": "460"
             }
           ]
         }
