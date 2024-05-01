@@ -227,7 +227,8 @@ namespace LoveFestival
                 {
                     letter = LoveLetter.GetRandomLetter();
                 }
-                string msg = letter.ContentWithAttachment(authorName);
+                string translatedAuthorName = Game1.getCharacterFromName(authorName).displayName;
+                string msg = letter.ContentWithAttachment(translatedAuthorName);
 
                 LetterViewerMenu menu = new LetterViewerMenu(msg, split[1]);
                 menu.exitFunction = () =>
@@ -346,11 +347,6 @@ namespace LoveFestival
         }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
-            var originalMethods = Harmony.GetAllPatchedMethods();
-            foreach (var method in originalMethods) 
-            {
-                Debug.Write(method.Name + "\n");
-            }
 
             if (e.OldLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate || e.OldLocation.Name == "Temp" && isValentinesFestival)
             {
@@ -412,6 +408,7 @@ namespace LoveFestival
 
         private void OnSaveLoaded(object? sender, EventArgs e)
         {
+            /*
             var hasDateNight = Helper.ModRegistry.GetAll()
                 .Where(x => x.IsContentPack && x.Manifest.UniqueID.Equals("agentlyoko.datenightredux"))
                 .Select(x => GetContentPackFor(x));
@@ -424,6 +421,7 @@ namespace LoveFestival
                 object data = dateNightRedux.ReadJsonFile<object>("data/TestDates.json");
                 Debug.WriteLine(data.ToString());
             }
+            */
 
             npcs = getAllNPCs();
             isValentinesFestival = false;
@@ -521,7 +519,6 @@ namespace LoveFestival
         public static string getMainEvent()
         {
             string commands = "";
-
             foreach (NPC npc in npcs)
             {
                 if (!Game1.player.friendshipData.ContainsKey(npc.Name) || (bool)!npc.datable)
@@ -549,13 +546,15 @@ namespace LoveFestival
                         isGoingOnDate = true;
                         datePartner = npc;
                         Logger.Log_Trace($"{datePartner.Name} will ask for a date");
-                        commands += $"/warp {npc.Name} 39 38/move {npc.Name} 0 -11 0/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} 0 11 0/warp {npc.Name} -1000 -1000";
+                        commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
                         continue;
                     }
-                    commands += $"/warp {npc.Name} 39 38/move {npc.Name} 0 -11 0/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/move {npc.Name} 0 11 0/warp {npc.Name} -1000 -1000";
+
+                    commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true/";
                 }
 
             }
+
             if (commands == "")
             {
                 commands = $"/pause 3000/faceDirection Marnie 1/pause 500/speak Marnie \"{I18n.MarnieReaction_NoLoveLetters()}\"/pause 500/emote farmer 28/pause 500";
@@ -683,7 +682,7 @@ namespace LoveFestival
                 ["name"] = I18n.Festival_Name(),
                 ["conditions"] = "Town/900 1400",
                 ["set-up"] = "musicboxsong/-1000 -1000/farmer 1 54 2/changeToTemporaryMap LoveFestivalMap/loadActors Set-Up/animate Robin false true 500 20 21 20 22/animate Demetrius false true 500 24 25 24 26/playerControl LoveFestival17819",
-                ["mainEvent"] = $"globalFade/viewport -1000 -1000/warp farmer 39 26/faceDirection farmer 2/warp Marnie 38 26/faceDirection Marnie 2/warp Lewis 40 26/faceDirection Lewis 2/viewport 39 26/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end",
+                ["mainEvent"] = $"globalFade/viewport -1000 -1000/warp farmer 39 22/faceDirection farmer 2/warp Marnie 38 22/faceDirection Marnie 2/warp Lewis 40 22/faceDirection Lewis 2/viewport 39 22/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end",
             };
             foreach (var translation in Helper.Translation.GetTranslations())
             {
