@@ -559,6 +559,11 @@ namespace LoveFestival
             {
                 commands = $"/pause 3000/faceDirection Marnie 1/pause 500/speak Marnie \"{I18n.MarnieReaction_NoLoveLetters()}\"/pause 500/emote farmer 28/pause 500";
             }
+            else if (commands.EndsWith("true/"))
+            {
+                string substring = commands.Substring(0, commands.Length - 5);
+                commands = substring + "false/";
+            }
             return commands;
         }
         private void OnUpdateTicking(object? sender, EventArgs e)
