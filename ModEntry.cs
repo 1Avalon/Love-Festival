@@ -107,6 +107,7 @@ namespace LoveFestival
             helper.Events.GameLoop.Saved += this.OnGameSaved;
 
             helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
+            helper.ConsoleCommands.Add("try_continue_event", "Goes to the next Event command. Try in case you get stuck during the event", this.TryContinueEvent);
 
             spouseDialouges = GetSpouseDialogues();
 
@@ -210,6 +211,25 @@ namespace LoveFestival
                 getValue: () => Config.TestNpcDateName,
                 setValue: value => Config.TestNpcDateName = value
             );
+            configMenu.AddBoolOption(
+                mod: this.ModManifest,
+                name: () => I18n.Config_SpouseAlwaysGivingLetter(),
+                getValue: () => Config.SpouseAlwaysGivingLetter,
+                setValue: value => Config.SpouseAlwaysGivingLetter = value
+            );
+            configMenu.AddNumberOption(
+                mod: this.ModManifest,
+                name: () => I18n.Config_MinHeartsRequired(),
+                getValue: () => Config.MinRequiredHearts,
+                setValue: value => Config.MinRequiredHearts = value
+            );
+            configMenu.AddNumberOption(
+                mod: this.ModManifest,
+                name: () => I18n.Config_ChancePerHeart(),
+                tooltip: () => I18n.Config_ChancePerHeartDescription(),
+                getValue: () => Config.ChancePerHeart,
+                setValue: value => Config.ChancePerHeart = value
+            );
         }
         public static void showLoveLetter_command(Event instance, string[] split, EventContext context)
         {
@@ -250,7 +270,7 @@ namespace LoveFestival
                 };
                 string character = split[1];
                 NPC npc = Game1.getCharacterFromName(character);
-                Game1.currentLocation.createQuestionDialogue(I18n.LoveFestivalDates_Question(npc: character), choices.ToArray(),
+                Game1.currentLocation.createQuestionDialogue(I18n.LoveFestivalDates_Question(npc: npc.displayName), choices.ToArray(),
                     new GameLocation.afterQuestionBehavior((Farmer who, string dialogue_id) =>
                     {
                         if (dialogue_id == "dateAccepted")
@@ -283,6 +303,10 @@ namespace LoveFestival
                         //Game1.DrawDialogue(npc, null, I18n.LoveFestivalDates_DateRejected());
                     }));
             }
+        }
+        private void TryContinueEvent(string command, string[] args)
+        {
+            Game1.CurrentEvent.CurrentCommand++;
         }
 
         private void TestDate(string command, string[] args)
@@ -375,6 +399,7 @@ namespace LoveFestival
             else if (e.NewLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate && Game1.timeOfDay <= 1400)
             {
                 Logger.Log_Trace("Attended Love Festival. Getting Main Event script...");
+                Logger.Log_Info("In case the event does not progress, try running the command 'try_continue_event'");
                 mainEventScript = getMainEvent();
             }
         }
@@ -526,13 +551,16 @@ namespace LoveFestival
 
                 Friendship fs = Game1.player.friendshipData[npc.Name];
                 int hearts = fs.Points / 250;
-                if (hearts < 2)
+                if (hearts < Config.MinRequiredHearts)
                     continue;
-                if (hearts > 9)
-                    hearts = 9;
-                int chance = ModRandom.Next(hearts, 11);
+                if (hearts > 10)
+                    hearts = 10;
 
-                if (chance == 9 || Game1.player.spouse == npc.Name)
+                bool getsLetter = false;
+
+                getsLetter = ModRandom.Next(101) < hearts * Config.ChancePerHeart;
+
+                if (getsLetter || (Game1.player.spouse == npc.Name && Config.SpouseAlwaysGivingLetter))
                 {
                     chosenLoveLetterGifters.Add(npc);
                     string letterDialogue;
@@ -609,12 +637,7 @@ namespace LoveFestival
         }
         private List<NPC> getAllNPCs()
         {
-            List<NPC> npcList = new();
-            Utility.ForEachVillager((NPC npc) =>
-            {
-                npcList.Add(npc);
-                return true; //TODO figure out what are the consequences of returning true
-            });
+            List<NPC> npcList = Utility.getAllVillagers();
             return npcList;
         }
         private void OnAssetRequest(object? sender, AssetRequestedEventArgs e)
