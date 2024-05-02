@@ -79,8 +79,6 @@ namespace LoveFestival
 
         private static bool hasDateContentPacks = false;
 
-        public static string mainEventScript;
-
         private bool hasSeenDate = false;
 
         /*********
@@ -174,6 +172,7 @@ namespace LoveFestival
 
 
         }
+
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
@@ -306,7 +305,7 @@ namespace LoveFestival
         }
         private void TryContinueEvent(string command, string[] args)
         {
-            Game1.CurrentEvent.CurrentCommand++;
+            Game1.CurrentEvent.currentCommand++;
         }
 
         private void TestDate(string command, string[] args)
@@ -398,9 +397,7 @@ namespace LoveFestival
             }
             else if (e.NewLocation.Name == "Temp" && Game1.Date.Season == Season.Winter && Game1.Date.DayOfMonth == festivalDate && Game1.timeOfDay <= 1400)
             {
-                Logger.Log_Trace("Attended Love Festival. Getting Main Event script...");
                 Logger.Log_Info("In case the event does not progress, try running the command 'try_continue_event'");
-                mainEventScript = getMainEvent();
             }
         }
 
@@ -544,11 +541,11 @@ namespace LoveFestival
         public static string getMainEvent()
         {
             string commands = "";
-            foreach (NPC npc in npcs)
+            var shuffledNpcs = npcs.OrderBy(item => ModRandom.Next());
+            foreach (NPC npc in shuffledNpcs)
             {
                 if (!Game1.player.friendshipData.ContainsKey(npc.Name) || (bool)!npc.datable)
                     continue;
-
                 Friendship fs = Game1.player.friendshipData[npc.Name];
                 int hearts = fs.Points / 250;
                 if (hearts < Config.MinRequiredHearts)
@@ -557,12 +554,13 @@ namespace LoveFestival
                     hearts = 10;
 
                 bool getsLetter = false;
-
-                getsLetter = ModRandom.Next(101) < hearts * Config.ChancePerHeart;
+                int chance = ModRandom.Next(1, 101);
+                getsLetter = chance < hearts * Config.ChancePerHeart;
 
                 if (getsLetter || (Game1.player.spouse == npc.Name && Config.SpouseAlwaysGivingLetter))
                 {
                     chosenLoveLetterGifters.Add(npc);
+                    Logger.Log_Info(npc.Name);
                     string letterDialogue;
                     do
                     {
@@ -578,7 +576,7 @@ namespace LoveFestival
                         continue;
                     }
 
-                    commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true/";
+                    commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
                 }
 
             }
@@ -587,10 +585,10 @@ namespace LoveFestival
             {
                 commands = $"/pause 3000/faceDirection Marnie 1/pause 500/speak Marnie \"{I18n.MarnieReaction_NoLoveLetters()}\"/pause 500/emote farmer 28/pause 500";
             }
-            else if (commands.EndsWith("true/"))
+            else if (commands.EndsWith("true"))
             {
                 string substring = commands.Substring(0, commands.Length - 5);
-                commands = substring + "false/";
+                commands = substring + "false";
             }
             return commands;
         }
@@ -637,7 +635,17 @@ namespace LoveFestival
         }
         private List<NPC> getAllNPCs()
         {
-            List<NPC> npcList = Utility.getAllVillagers();
+            List<NPC> npcList = new();
+            List<string> npcNames = new(); 
+            foreach (NPC npc in Utility.getAllVillagers())  //For whatever reason, this function sometimes returns 4 different instances of an npc so we have to filter by name
+            {
+                if (!npcNames.Contains(npc.Name))
+                {
+                    npcList.Add(npc);
+                    npcNames.Add(npc.Name);
+                }
+            }
+            npcList.ForEach((NPC npc) => Logger.Log_Info(npc.Name));
             return npcList;
         }
         private void OnAssetRequest(object? sender, AssetRequestedEventArgs e)
