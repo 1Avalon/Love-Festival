@@ -56,7 +56,7 @@ namespace LoveFestival
                 ModEntry.date = null;
                 if (ModEntry.chosenLoveLetterGifters.Count > 0)
                     ModEntry.chosenLoveLetterGifters.Clear();
-                string command = ModEntry.mainEventScript;
+                string command = ModEntry.getMainEvent();
                 ModEntry.modHelper.GameContent.InvalidateCache(ModEntry.modDateEntryKey);
                 Dictionary<string, ModDate> abc = ModEntry.modHelper.GameContent.Load<Dictionary<string, ModDate>>(ModEntry.modDateEntryKey);
                 Debug.WriteLine(abc.ToString());//when adding this line the token works somehow
@@ -76,7 +76,7 @@ namespace LoveFestival
                 var festData = ModEntry.instance.Helper.Reflection.GetField<Dictionary<string, string>>(Game1.CurrentEvent, "festivalData").GetValue();
                 //string agreedToDateInformation = festData["dialogueDateAgreed"].Replace("DATEINFORMATION", ModEntry.modHelper.Translation.Get($"LoveLetter.{ModEntry.date}Information"));
                 if (!festData["mainEvent"].Contains("LoveFestival17819command"))
-                    festData["mainEvent"] = $"globalFade/viewport -1000 -1000/warp farmer 39 26/faceDirection farmer 2/warp Marnie 38 26/faceDirection Marnie 2/warp Lewis 40 26/faceDirection Lewis 2/viewport 39 26/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end";
+                    festData["mainEvent"] = $"globalFade/viewport -1000 -1000/warp farmer 39 22/faceDirection farmer 2/warp Marnie 38 22/faceDirection Marnie 2/warp Lewis 40 22/faceDirection Lewis 2/viewport 39 22/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end";
                 string newCommands = festData["mainEvent"].Replace("LoveFestival17819command", command);
                 festData["mainEvent"] = newCommands;
                 //festData["dialogueDateAgreed"] = agreedToDateInformation;
