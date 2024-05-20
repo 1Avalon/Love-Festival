@@ -14,10 +14,10 @@ namespace LoveFestival
 
         private static readonly Dictionary<string, int[]> letterTypes = new Dictionary<string, int[]>
         {
-            { "Food", new int[] { 204, 194, 195, 196, 206 } }, // Dish items
-            { "Vegetable", new int[] { 24, 270, 264, 272 } },   //Parsnip Corn Radish Eggplant
-            { "Crops", new int[] { 475, 745, 484, 480, 488 } }, //Potato Strawberry Radish Tomato Eggplant
-            { "Gems", new int[] { 60, 62, 64, 66, 68 } },       // /Emerald Aquamarine Amethyst Topaz
+            { "Food", new int[] { 204, 194, 195, 196, 206, 220, 221, 234, 253, 223 } }, // Dish items
+            { "Vegetable", new int[] { 24, 270, 264, 272, 256, 400, 258 } },   //Parsnip Corn Radish Eggplant
+            { "Crops", new int[] { 475, 745, 484, 480, 488, 479, 493, 498 } }, //Potato Strawberry Radish Tomato Eggplant
+            { "Gems", new int[] { 60, 62, 64, 66, 68, 70, 72, 82 } },       // /Emerald Aquamarine Amethyst Topaz
         };
 
         private static readonly Dictionary<string, Func<string>> letterGenerators = new Dictionary<string, Func<string>>
