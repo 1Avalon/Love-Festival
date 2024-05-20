@@ -560,7 +560,6 @@ namespace LoveFestival
                 if (getsLetter || (Game1.player.spouse == npc.Name && Config.SpouseAlwaysGivingLetter))
                 {
                     chosenLoveLetterGifters.Add(npc);
-                    Logger.Log_Info(npc.Name);
                     string letterDialogue;
                     do
                     {
@@ -588,7 +587,7 @@ namespace LoveFestival
             else if (commands.EndsWith("true"))
             {
                 string substring = commands.Substring(0, commands.Length - 5);
-                commands = substring + "false";
+                commands = substring + " false";
             }
             return commands;
         }
@@ -645,7 +644,6 @@ namespace LoveFestival
                     npcNames.Add(npc.Name);
                 }
             }
-            npcList.ForEach((NPC npc) => Logger.Log_Info(npc.Name));
             return npcList;
         }
         private void OnAssetRequest(object? sender, AssetRequestedEventArgs e)
