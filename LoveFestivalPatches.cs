@@ -9,11 +9,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using LoveFestival.UI;
 using Location = xTile.Dimensions.Location;
+using StardewValley.BellsAndWhistles;
 
 namespace LoveFestival
 {
     public static class LoveFestivalPatches
     {
+        private static double fontColorGradientOffset = 0;
+
         private static Color letterFontColor = Color.Black;
 
         private static string festivalKey = "StartLoveFestivalKey";
@@ -34,8 +37,16 @@ namespace LoveFestival
         }
         public static void Postfix_FontColorPatch(LetterViewerMenu __instance, ref Color? __result)
         {
+            fontColorGradientOffset += 0.03;
             if (__instance.letterTexture == ModEntry.bgLoveLetter)
                 __result = letterFontColor;
+        }
+
+        public static void Prefix_drawString(SpriteText __instance, string s, ref Color? color)
+        {
+            double abs = Math.Abs(fontColorGradientOffset);
+            if (s.StartsWith("$ ") && ModEntry.isValentinesFestival && ModEntry.Config.ChangeMoneyTextColorInLetter)
+                color = Color.Lerp(Color.Lavender, Color.Red, (float)Math.Sin(abs));
         }
 
         public static bool Prefix_setNewDialogue(NPC __instance, string translationKey)
