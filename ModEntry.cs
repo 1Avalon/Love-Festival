@@ -15,6 +15,7 @@ using LoveFestival.UI;
 using System.Linq;
 using System.Reflection;
 using StardewValley.Locations;
+using StardewValley.BellsAndWhistles;
 
 namespace LoveFestival
 {
@@ -118,6 +119,11 @@ namespace LoveFestival
             harmony.Patch(
                 original: AccessTools.Method(typeof(LetterViewerMenu), nameof(LetterViewerMenu.draw), new Type[] { typeof(SpriteBatch) }),
                 prefix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Prefix_CustomLetterBackgroundPatch))
+                );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(SpriteText), nameof(SpriteText.drawString)),
+                prefix: new HarmonyMethod(typeof(LoveFestivalPatches), nameof(LoveFestivalPatches.Prefix_drawString))
                 );
 
             harmony.Patch(
