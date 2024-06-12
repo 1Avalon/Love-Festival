@@ -104,6 +104,7 @@ namespace LoveFestival
             helper.Events.GameLoop.DayStarted += this.OnDayStarted;
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.Saved += this.OnGameSaved;
+            helper.Events.Display.MenuChanged += this.OnMenuChanged;
 
             helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
             helper.ConsoleCommands.Add("try_continue_event", "Goes to the next Event command. Try in case you get stuck during the event", this.TryContinueEvent);
@@ -179,7 +180,36 @@ namespace LoveFestival
 
         }
 
+        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        {
+            if (Game1.CurrentEvent is null)
+                return;
 
+            if (!Game1.CurrentEvent.isSpecificFestival($"winter{festivalDate}"))
+                return;
+            
+            if (e.OldMenu is DialogueBox)
+            {
+                foreach (NPC npc in Game1.CurrentEvent.actors)
+                {
+                    if (!letterSent)
+                    {
+                        if ((bool)npc.datable || Game1.player.spouse == npc.Name)
+                        {
+                            if (npc.CurrentDialogue.Count > 0 && npc.CurrentDialogue.Peek().getCurrentDialogue().Equals(ModEntry.dialogueToBeReplaced))
+                            {
+                                npc.CurrentDialogue.Clear();
+                            }
+                            if (npc.CurrentDialogue.Count == 0)
+                            {
+                                npc.CurrentDialogue.Push(new Dialogue(npc, null, ModEntry.dialogueToBeReplaced));
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             Event.RegisterCommand("showLoveLetter", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(showLoveLetter_command))));

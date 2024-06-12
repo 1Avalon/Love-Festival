@@ -131,24 +131,6 @@ namespace LoveFestival
                         }
                     }));
                 }
-
-                foreach (NPC npc in __instance.actors)
-                {
-                    if (!ModEntry.letterSent)
-                    {
-                        if ((bool)npc.datable || who.spouse == npc.Name)
-                        {
-                            if (npc.CurrentDialogue.Count > 0 && npc.CurrentDialogue.Peek().getCurrentDialogue().Equals(ModEntry.dialogueToBeReplaced))
-                            {
-                                npc.CurrentDialogue.Clear();
-                            }
-                            if (npc.CurrentDialogue.Count == 0)
-                            {
-                                npc.CurrentDialogue.Push(new Dialogue(npc, null, ModEntry.dialogueToBeReplaced));
-                            }
-                        }
-                    }
-                }
             }
         }
 
