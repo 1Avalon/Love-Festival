@@ -202,7 +202,10 @@ namespace LoveFestival
                             }
                             if (npc.CurrentDialogue.Count == 0)
                             {
-                                npc.CurrentDialogue.Push(new Dialogue(npc, null, ModEntry.dialogueToBeReplaced));
+                                if (npc.Name == Game1.player.spouse)
+                                    seenSpouseDialogue = true;
+
+                                npc.CurrentDialogue.Push(new Dialogue(npc, "0", ModEntry.dialogueToBeReplaced));
                             }
                         }
                     }
