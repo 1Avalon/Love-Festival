@@ -78,6 +78,8 @@ namespace LoveFestival
 
         public static FriendshipMultiplier multiplier;
 
+        public static NetworkDataManager networkDataManager;
+
         private static bool hasDateContentPacks = false;
 
         private bool hasSeenDate = false;
@@ -105,9 +107,12 @@ namespace LoveFestival
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.Saved += this.OnGameSaved;
             helper.Events.Display.MenuChanged += this.OnMenuChanged;
+            helper.Events.Multiplayer.ModMessageReceived += this.OnMessageReceived;
+            helper.Events.Multiplayer.PeerConnected += this.OnPeerConnected;
 
             helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
             helper.ConsoleCommands.Add("try_continue_event", "Goes to the next Event command. Try in case you get stuck during the event", this.TryContinueEvent);
+            helper.ConsoleCommands.Add("test_multiplier", "Initialises a friendship multiplier for the corresponding NPC.\nThis was implemented for testing", this.test_multiplier);
 
             spouseDialouges = GetSpouseDialogues();
 
@@ -269,6 +274,32 @@ namespace LoveFestival
                 setValue: value => Config.ChancePerHeart = value
             );
         }
+        
+        private void OnMessageReceived(object sender, ModMessageReceivedEventArgs e)
+        {
+            if (!Context.IsMainPlayer)
+            {
+                if (e.Type == "MultiplierData")
+                {
+                    Logger.Log_Trace("Received Multiplier Data");
+                    multiplier = e.ReadAs<FriendshipMultiplier>();
+                }
+                else if (e.Type == "DateLetterData")
+                {
+                    Logger.Log_Trace("Received Date Letter Data");
+                    dateLetter = e.ReadAs<DateLetter>();
+                }
+
+                return;
+
+            }
+            networkDataManager.ReceiveMessage(e); //Additionally, add or update the date from the other players if host
+        }
+
+        private void OnPeerConnected(object sender, PeerConnectedEventArgs e)
+        {
+            networkDataManager.SendDataToFarmhand(e.Peer.PlayerID);
+        }
         public static void showLoveLetter_command(Event instance, string[] split, EventContext context)
         {
             IClickableMenu acm = Game1.activeClickableMenu;
@@ -347,6 +378,11 @@ namespace LoveFestival
             Game1.CurrentEvent.currentCommand++;
         }
 
+        private void test_multiplier(string command, string[] args)
+        {
+            multiplier = new FriendshipMultiplier(args[0]);
+            Logger.Log_Info($"Initialised Friendship multiplier for {args[0]}");
+        }
         private void TestDate(string command, string[] args)
         {
             string dateId = args[0];
@@ -389,23 +425,26 @@ namespace LoveFestival
         }
         private void OnGameSaved(object sender, SavedEventArgs e)
         {
-            if (hasSeenDate)
+            if (hasSeenDate && !Context.IsMultiplayer)
             {
                 Helper.Data.WriteSaveData<DateLetter>("DateLetter", null);
                 Logger.Log_Trace("Cleared data Data...");
                 hasSeenDate = false;
             }
-            else if (dateLetter != null)
+            else if (dateLetter != null && !Context.IsMultiplayer)
             {
                 Helper.Data.WriteSaveData("DateLetter", dateLetter);
                 Helper.Data.ReadSaveData<DateLetter>("DateLetter");
                 Logger.Log_Trace("Saved Date Data");
             }
-            if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt) //More consistent
+            if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt && !Context.IsMultiplayer) //More consistent
             {
                 Helper.Data.WriteSaveData("Multiplier", multiplier);
                 Logger.Log_Trace("Saved Multiplier Data");
             }
+
+            networkDataManager.SendDataToHost();
+            networkDataManager?.Save();
         }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
@@ -489,8 +528,25 @@ namespace LoveFestival
             date = null;
             Game1.player.eventsSeen.Remove("17819");
 
-            multiplier = Helper.Data.ReadSaveData<FriendshipMultiplier>("Multiplier");
-            dateLetter = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
+            if (!Context.IsMultiplayer)
+            {
+                multiplier = Helper.Data.ReadSaveData<FriendshipMultiplier>("Multiplier");
+                dateLetter = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
+            }
+            else if (Context.IsMainPlayer)
+            {
+                networkDataManager = Helper.Data.ReadSaveData<NetworkDataManager>("NetworkDataManager");
+                if (networkDataManager == null)
+                {
+                    networkDataManager = new NetworkDataManager();
+                }
+                networkDataManager.TryLoadingDataForHost();
+            }
+            else
+            {
+                networkDataManager = new(); //For the farmhands
+            }
+
             if (multiplier != null)
             {
                 Logger.Log_Trace($"Successfully loaded friendship multiplier for {multiplier.targetName}");
@@ -547,7 +603,8 @@ namespace LoveFestival
             else if (multiplier != null && date.DayOfMonth == multiplier.expiresAt && date.Season == Season.Winter)
             {
                 Logger.Log_Trace("Friendship multiplier expired");
-                Helper.Data.WriteSaveData<FriendshipMultiplier>("Multiplier", null);
+                if (Context.IsMainPlayer)
+                    Helper.Data.WriteSaveData<FriendshipMultiplier>("Multiplier", null);
                 multiplier = null;
             }
         }
