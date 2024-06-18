@@ -260,6 +260,13 @@ namespace LoveFestival
                 getValue: () => Config.SpouseAlwaysGivingLetter,
                 setValue: value => Config.SpouseAlwaysGivingLetter = value
             );
+            configMenu.AddBoolOption(
+                mod: this.ModManifest,
+                name: () => I18n.Config_MoneyLetterPulsating(),
+                tooltip: () => I18n.Config_MoneyLetterPulsatingDescription(),
+                getValue: () => Config.ChangeMoneyTextColorInLetter,
+                setValue: value => Config.ChangeMoneyTextColorInLetter = value
+            );
             configMenu.AddNumberOption(
                 mod: this.ModManifest,
                 name: () => I18n.Config_MinHeartsRequired(),
@@ -530,17 +537,21 @@ namespace LoveFestival
             date = null;
             Game1.player.eventsSeen.Remove("17819");
 
-            if (!Context.IsMainPlayer)
+            if (Context.IsMainPlayer)
             {
                 multiplier = Helper.Data.ReadSaveData<FriendshipMultiplier>("Multiplier");
                 dateLetter = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
 
-                networkDataManager = Helper.Data.ReadSaveData<NetworkDataManager>("NetworkDataManager");
-                if (networkDataManager == null)
+                if (Context.IsMultiplayer)
                 {
-                    networkDataManager = new NetworkDataManager();
+                    networkDataManager = Helper.Data.ReadSaveData<NetworkDataManager>("NetworkDataManager");
+                    if (networkDataManager == null)
+                    {
+                        networkDataManager = new NetworkDataManager();
+                    }
+                    networkDataManager.TryLoadingDataForHost();
                 }
-                networkDataManager.TryLoadingDataForHost();
+
             }
             else
             {

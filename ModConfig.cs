@@ -15,5 +15,7 @@ namespace LoveFestival
         public int MinRequiredHearts { get; set; } = 2;
 
         public int ChancePerHeart { get; set; } = 10;
+
+        public bool ChangeMoneyTextColorInLetter { get; set; } = true;
     }
 }
