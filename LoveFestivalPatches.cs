@@ -46,7 +46,7 @@ namespace LoveFestival
         {
             double abs = Math.Abs(fontColorGradientOffset);
             if (s.StartsWith("$ ") && ModEntry.isValentinesFestival && ModEntry.Config.ChangeMoneyTextColorInLetter)
-                color = Color.Lerp(Color.Lavender, Color.Red, (float)Math.Sin(abs));
+                color = ModEntry.Config.ChangeMoneyTextColorInLetter ? Color.Lerp(Color.Lavender, Color.Red, (float)Math.Sin(abs)) : Color.Black;
         }
 
         public static bool Prefix_setNewDialogue(NPC __instance, string translationKey)
