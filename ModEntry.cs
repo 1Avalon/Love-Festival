@@ -425,26 +425,28 @@ namespace LoveFestival
         }
         private void OnGameSaved(object sender, SavedEventArgs e)
         {
-            if (hasSeenDate && !Context.IsMultiplayer)
+            if (hasSeenDate && Context.IsMainPlayer)
             {
                 Helper.Data.WriteSaveData<DateLetter>("DateLetter", null);
                 Logger.Log_Trace("Cleared data Data...");
                 hasSeenDate = false;
             }
-            else if (dateLetter != null && !Context.IsMultiplayer)
+            else if (dateLetter != null && Context.IsMainPlayer)
             {
                 Helper.Data.WriteSaveData("DateLetter", dateLetter);
                 Helper.Data.ReadSaveData<DateLetter>("DateLetter");
                 Logger.Log_Trace("Saved Date Data");
             }
-            if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt && !Context.IsMultiplayer) //More consistent
+            if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt && !Context.IsMainPlayer) //More consistent
             {
                 Helper.Data.WriteSaveData("Multiplier", multiplier);
                 Logger.Log_Trace("Saved Multiplier Data");
             }
-
-            networkDataManager.SendDataToHost();
-            networkDataManager?.Save();
+            if (Context.IsMultiplayer) 
+            {
+                networkDataManager.SendDataToHost();
+                networkDataManager?.Save();
+            }
         }
         private void OnWarped(object? sender, WarpedEventArgs e)
         {
@@ -528,13 +530,11 @@ namespace LoveFestival
             date = null;
             Game1.player.eventsSeen.Remove("17819");
 
-            if (!Context.IsMultiplayer)
+            if (!Context.IsMainPlayer)
             {
                 multiplier = Helper.Data.ReadSaveData<FriendshipMultiplier>("Multiplier");
                 dateLetter = Helper.Data.ReadSaveData<DateLetter>("DateLetter");
-            }
-            else if (Context.IsMainPlayer)
-            {
+
                 networkDataManager = Helper.Data.ReadSaveData<NetworkDataManager>("NetworkDataManager");
                 if (networkDataManager == null)
                 {
