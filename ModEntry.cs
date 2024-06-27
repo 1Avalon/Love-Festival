@@ -320,7 +320,7 @@ namespace LoveFestival
             if (acm is not LetterViewerMenu && acm is not ItemGrabMenu || acm is DialogueBox)
             {
                 ModLetter letter;
-                string authorName = split[1].Split("_")[0];
+                string authorName = split[1].Split("$")[0];
                 if (datePartner != null && datePartner.Name == authorName && date == null)
                 {
                     dateLetter = DateLetter.getRandomDateLetter();
@@ -685,11 +685,11 @@ namespace LoveFestival
                         isGoingOnDate = true;
                         datePartner = npc;
                         Logger.Log_Trace($"{datePartner.Name} will ask for a date");
-                        commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
+                        commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}$LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
                         continue;
                     }
 
-                    commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}_LoveFestival17819Letter/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
+                    commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}$LoveFestival17819Letter/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
                 }
 
             }
