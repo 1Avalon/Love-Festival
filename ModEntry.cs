@@ -284,6 +284,9 @@ namespace LoveFestival
         
         private void OnMessageReceived(object sender, ModMessageReceivedEventArgs e)
         {
+            if (e.FromModID != this.ModManifest.UniqueID)
+                return;
+
             if (!Context.IsMainPlayer)
             {
                 if (e.Type == "MultiplierData")
@@ -300,7 +303,11 @@ namespace LoveFestival
                 return;
 
             }
-            networkDataManager.ReceiveMessage(e); //Additionally, add or update the date from the other players if host
+            networkDataManager?.ReceiveMessage(e);
+            if (networkDataManager == null)
+            {
+                Monitor.Log("Love Festival tried to manage network data but the handler was not initialised", LogLevel.Warn);
+            }//Additionally, add or update the date from the other players if host
         }
 
         private void OnPeerConnected(object sender, PeerConnectedEventArgs e)
