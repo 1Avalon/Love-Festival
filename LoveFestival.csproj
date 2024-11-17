@@ -17,6 +17,10 @@
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <PackageReference Include="Pathoschild.Stardew.ModTranslationClassBuilder" Version="2.0.1" />
   </ItemGroup>
+
+  <ItemGroup>
+	  <ContentPacks Include="content_packs/[CP] Love Festival" Version="$(Version)" />
+  </ItemGroup>
 	
   <ItemGroup>
     <Folder Include="content_packs\[CP] Love Festival Default Dates\assets\" />
@@ -29,9 +33,5 @@
   <PropertyGroup>
 	<IgnoreModFilePaths>assets/valentines_sheet.ase, assets/Town-LoveFestival.tmx, assets/valentines_sheet.tsx, assets/.characterSheet.png, assets/.Festivals.png, assets/.winter_town.png, assets/.paths.png, assets/.winter_outdoorsTileSheet.png</IgnoreModFilePaths>	
   </PropertyGroup>
-    
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="call %25cd%25\builder.bat" />
-  </Target>
 
 </Project>
