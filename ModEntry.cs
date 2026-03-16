@@ -110,7 +110,7 @@ namespace LoveFestival
             helper.Events.Multiplayer.ModMessageReceived += this.OnMessageReceived;
             helper.Events.Multiplayer.PeerConnected += this.OnPeerConnected;
 
-            helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
+            //helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
             helper.ConsoleCommands.Add("try_continue_event", "Goes to the next Event command. Try in case you get stuck during the event", this.TryContinueEvent);
             helper.ConsoleCommands.Add("test_multiplier", "Initialises a friendship multiplier for the corresponding NPC.\nThis was implemented for testing", this.test_multiplier);
 
@@ -199,7 +199,7 @@ namespace LoveFestival
                 {
                     if (!letterSent)
                     {
-                        if ((bool)npc.datable || Game1.player.spouse == npc.Name)
+                        if (!npc.isMarriedOrEngaged() || Game1.player.spouse == npc.Name)
                         {
                             if (npc.CurrentDialogue.Count > 0 && npc.CurrentDialogue.Peek().getCurrentDialogue().Equals(ModEntry.dialogueToBeReplaced))
                             {
@@ -240,7 +240,7 @@ namespace LoveFestival
 
             if (configMenu is null)
                 return;
-
+            
             configMenu.Register(
                 mod: this.ModManifest,
                 reset: () => Config = new ModConfig(),
@@ -320,7 +320,7 @@ namespace LoveFestival
             if (acm is not LetterViewerMenu && acm is not ItemGrabMenu || acm is DialogueBox)
             {
                 ModLetter letter;
-                string authorName = split[1].Split("$")[0];
+                string authorName = split[1];
                 if (datePartner != null && datePartner.Name == authorName && date == null)
                 {
                     dateLetter = DateLetter.getRandomDateLetter();
@@ -658,7 +658,7 @@ namespace LoveFestival
             var shuffledNpcs = npcs.OrderBy(item => ModRandom.Next());
             foreach (NPC npc in shuffledNpcs)
             {
-                if (!Game1.player.friendshipData.ContainsKey(npc.Name) || (bool)!npc.datable)
+                if (!Game1.player.friendshipData.ContainsKey(npc.Name) || npc.isMarriedOrEngaged() || !npc.CanSocialize)
                     continue;
                 Friendship fs = Game1.player.friendshipData[npc.Name];
                 int hearts = fs.Points / 250;
@@ -674,22 +674,9 @@ namespace LoveFestival
                 if (getsLetter || (Game1.player.spouse == npc.Name && Config.SpouseAlwaysGivingLetter))
                 {
                     chosenLoveLetterGifters.Add(npc);
-                    string letterDialogue;
-                    do
-                    {
-                        letterDialogue = getRandomLetterDialogue();    //39 3
-                    } while (letterDialogue == I18n.NpcGiftingLetter_AskForDate() && isGoingOnDate);
+                    string letterDialogue = getRandomLetterDialogue();
 
-                    if (letterDialogue == I18n.NpcGiftingLetter_AskForDate() && !isGoingOnDate)
-                    {
-                        isGoingOnDate = true;
-                        datePartner = npc;
-                        Logger.Log_Trace($"{datePartner.Name} will ask for a date");
-                        commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}$LoveFestival17819Letter/askForDate {npc.Name}/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
-                        continue;
-                    }
-
-                    commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}$LoveFestival17819Letter/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
+                    commands += $"/warp {npc.Name} 39 34/move {npc.Name} 0 -11 0 false/pause 500/speak {npc.Name} \"{letterDialogue}\"/showLoveLetter {npc.Name}/move {npc.Name} -1 0 3/move {npc.Name} 0 13 0 true";
                 }
 
             }
