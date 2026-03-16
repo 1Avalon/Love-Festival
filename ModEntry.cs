@@ -109,6 +109,7 @@ namespace LoveFestival
             helper.Events.Display.MenuChanged += this.OnMenuChanged;
             helper.Events.Multiplayer.ModMessageReceived += this.OnMessageReceived;
             helper.Events.Multiplayer.PeerConnected += this.OnPeerConnected;
+            helper.Events.Content.AssetRequested += this.OnAssetRequested;
 
             //helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
             helper.ConsoleCommands.Add("try_continue_event", "Goes to the next Event command. Try in case you get stuck during the event", this.TryContinueEvent);
@@ -216,8 +217,16 @@ namespace LoveFestival
                     }
                 }
             }
-            
         }
+
+        private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
+        {
+            if (e.NameWithoutLocale.IsEquivalentTo($"{this.ModManifest.UniqueID}/LoveLetterBackground"))
+            {
+                e.LoadFromModFile<Texture2D>("assets\\love_letter_bg.png", AssetLoadPriority.Exclusive);
+            }
+        }
+
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             Event.RegisterCommand("showLoveLetter", (EventCommandDelegate)Delegate.CreateDelegate(typeof(EventCommandDelegate), typeof(ModEntry).GetMethod(nameof(showLoveLetter_command))));

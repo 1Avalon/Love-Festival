@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LoveFestival
 {
-    public abstract class ModLetter
+    public class ModLetter
     {
         public string Content;
 
@@ -14,24 +14,20 @@ namespace LoveFestival
 
         public string FullLetter;
 
-        public string ContentWithAttachment(string substitutableNpcName = null)
+        private readonly string BG_NAME = $"[letterbg {ModEntry.instance.ModManifest.UniqueID}/LoveLetterBackground 0][textcolor white]";
+
+        public string ContentWithAttachment(string substitutableNpcName)
         {
 
             Attachment ??= "";
 
-            string basic = Content.Contains(substitutableNpcName) ? Content + " " + Attachment : Content + "^^-NPCNAME < " + Attachment;
+            string content = Content + " " + Attachment + "^^-" + substitutableNpcName + " " + BG_NAME;
 
-            if (substitutableNpcName != null)
-            {
-                string basic2 = basic.Replace("NPCNAME", substitutableNpcName);
-                FullLetter = basic2.Replace("{DATEPARTNER_NAME}", substitutableNpcName); // just for safety optimise later
-            }
+            string basic2 = content.Replace("NPCNAME", substitutableNpcName);
+
+            FullLetter = basic2;
 
             return FullLetter;
-        }
-        public bool HasItem()
-        {
-            return Attachment.Contains("%item object");
         }
     }
 
