@@ -658,7 +658,7 @@ namespace LoveFestival
             var shuffledNpcs = npcs.OrderBy(item => ModRandom.Next());
             foreach (NPC npc in shuffledNpcs)
             {
-                if (!Game1.player.friendshipData.ContainsKey(npc.Name) || npc.isMarriedOrEngaged() || !npc.CanSocialize)
+                if (!Game1.player.friendshipData.ContainsKey(npc.Name) || npc.isMarriedOrEngaged() || !npc.CanSocialize || npc.Name == "Lewis" || npc.Name == "Marnie")
                     continue;
                 Friendship fs = Game1.player.friendshipData[npc.Name];
                 int hearts = fs.Points / 250;
