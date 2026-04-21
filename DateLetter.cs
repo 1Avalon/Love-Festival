@@ -24,13 +24,6 @@ namespace LoveFestival
         {
             AcceptDateResponse = AcceptDateResponse.Replace(DAYSUNTILDATE_TOKEN, (day - Game1.dayOfMonth).ToString());
         }
-        public static DateLetter getRandomDateLetter()
-        {
-            Dictionary<string, DateLetter> modLetters = ModEntry.modHelper.GameContent.Load<Dictionary<string, DateLetter>>(ModEntry.modDateLetterEntryKey);
-            int index = ModEntry.ModRandom.Next(modLetters.Count);
-            return modLetters.ElementAt(index).Value;
-            
-        }
     }
 }
 

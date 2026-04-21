@@ -24,23 +24,6 @@ namespace LoveFestival
         public static bool boughtCupidArrow = false;
 
         public static NPC friendshipMultiplierTarget; //TODO move ít somewhere else to avoid CA2211
-        public static bool Prefix_CustomLetterBackgroundPatch(LetterViewerMenu __instance)
-        {
-            if (__instance.mailTitle is null) // secret note
-                return true;
-
-            if (__instance.mailTitle.Contains("LoveFestival17819") && ModEntry.isValentinesFestival)
-            {
-                __instance.letterTexture = ModEntry.bgLoveLetter;
-            }
-            return true;
-        }
-        public static void Postfix_FontColorPatch(LetterViewerMenu __instance, ref Color? __result)
-        {
-            fontColorGradientOffset += 0.03;
-            if (__instance.letterTexture == ModEntry.bgLoveLetter)
-                __result = letterFontColor;
-        }
 
         public static void Prefix_drawString(SpriteText __instance, string s, ref Color? color)
         {
@@ -62,9 +45,6 @@ namespace LoveFestival
         {
             if (id == "LoveFestival17819")
             {
-                ModEntry.dateLetter = null;
-                ModEntry.ExecuteDateQuestion = false;
-                ModEntry.date = null;
                 if (ModEntry.chosenLoveLetterGifters.Count > 0)
                     ModEntry.chosenLoveLetterGifters.Clear();
                 string command = ModEntry.getMainEvent();

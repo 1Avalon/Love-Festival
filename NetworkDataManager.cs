@@ -13,8 +13,6 @@ namespace LoveFestival
     {
 
         public Dictionary<long, FriendshipMultiplier> multiplierData;
-
-        public Dictionary<long, DateLetter> dateLetterData;
         public NetworkDataManager()
         {
             if (!Context.IsMultiplayer)
@@ -22,7 +20,6 @@ namespace LoveFestival
                 return;
             }
             multiplierData = new Dictionary<long, FriendshipMultiplier>();
-            dateLetterData = new Dictionary<long, DateLetter>();
             Logger.Log_Info("Multiplayer active. Initialising NetworkDataManager...");
         }
 
@@ -33,8 +30,6 @@ namespace LoveFestival
                 long localhost = Game1.player.UniqueMultiplayerID;
                 if (ModEntry.multiplier !=  null)
                     multiplierData[localhost] = ModEntry.multiplier;
-                if (ModEntry.dateLetter != null)
-                    dateLetterData[localhost] = ModEntry.dateLetter;
 
                 return;
             }
@@ -49,20 +44,7 @@ namespace LoveFestival
                 }
             }
 
-            DateLetter dateLetter = ModEntry.dateLetter;
             FriendshipMultiplier multiplier = ModEntry.multiplier;
-
-
-            if (dateLetter != null)
-            {
-                ModEntry.modHelper.Multiplayer.SendMessage<DateLetter>(dateLetter, "DateLetterData", modIDs: new[] { ModEntry.instance.ModManifest.UniqueID }, new long[] { hostId });
-                Logger.Log_Trace("Sent Date Letter Data to the host. They will store the data");
-            }
-            else
-            {
-                dateLetter = new (); //Create a new pointless letter because sending null will raise an error (alternatively let host catch it)
-                ModEntry.modHelper.Multiplayer.SendMessage<DateLetter>(dateLetter, "ClearDateLetterData", modIDs: new[] { ModEntry.instance.ModManifest.UniqueID }, new long[] { hostId });
-            }
 
             if (multiplier != null)
             {
@@ -80,12 +62,6 @@ namespace LoveFestival
         public void SendDataToFarmhand(long playerId)
         {
             Logger.Log_Trace($"Sending data to farmhand {playerId}");
-            if (dateLetterData.ContainsKey(playerId))
-            {
-                Logger.Log_Trace($"Found Date Letter Data for {playerId}. Sending...");
-                DateLetter targetLetter = dateLetterData[playerId];
-                ModEntry.modHelper.Multiplayer.SendMessage(targetLetter, "DateLetterData", modIDs: new[] { ModEntry.instance.ModManifest.UniqueID }, new long[] { playerId });
-            }
 
             if (multiplierData.ContainsKey(playerId))
             {
@@ -114,18 +90,9 @@ namespace LoveFestival
 
         public void ReceiveMessage(ModMessageReceivedEventArgs e)
         {
-            AddToData<DateLetter>(ref this.dateLetterData, "DateLetterData", e);
             AddToData<FriendshipMultiplier>(ref this.multiplierData, "MultiplierData", e);
 
-            Logger.Log_Trace($"Received message from {e.FromPlayerID}. Type was {e.Type}");
-
-            if (e.Type == "ClearDateLetterData" && dateLetterData.ContainsKey(e.FromPlayerID))
-            {
-                dateLetterData.Remove(e.FromPlayerID);
-                Logger.Log_Trace($"{e.FromPlayerID} DateLetter was null. Trying to remove the profile...");
-
-            }
-            else if (e.Type == "ClearMultiplierData" && multiplierData.ContainsKey(e.FromPlayerID))
+            if (e.Type == "ClearMultiplierData" && multiplierData.ContainsKey(e.FromPlayerID))
             {
                 multiplierData.Remove(e.FromPlayerID);
                 Logger.Log_Trace($"{e.FromPlayerID} Multiplier was now null. Trying to remove the profile...");
@@ -145,11 +112,6 @@ namespace LoveFestival
         {
             long hostId = Game1.player.UniqueMultiplayerID;
 
-            if (dateLetterData.ContainsKey(hostId))
-            {
-                Logger.Log_Trace("Host key was found in date letter data");
-                ModEntry.dateLetter = dateLetterData[hostId];
-            }
             if (multiplierData.ContainsKey(hostId))
             {
                 Logger.Log_Trace("Host key was found in friendship multiplier data");
@@ -161,7 +123,6 @@ namespace LoveFestival
                 long playerId = Game1.player.UniqueMultiplayerID;
 
                 multiplierData.Add(playerId, new FriendshipMultiplier("None"));
-                dateLetterData.Add(playerId, new DateLetter());
             }
         }
     }

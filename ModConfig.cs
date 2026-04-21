@@ -17,5 +17,7 @@ namespace LoveFestival
         public int ChancePerHeart { get; set; } = 10;
 
         public bool ChangeMoneyTextColorInLetter { get; set; } = true;
+
+        public bool EnableModdedNPCs { get; set; } = true;
     }
 }
