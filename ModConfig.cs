@@ -18,6 +18,8 @@ namespace LoveFestival
 
         public bool ChangeMoneyTextColorInLetter { get; set; } = true;
 
+        public int NpcLimit { get; set; } = 12; //allow users to set a limit, later the festival may take too much time and the rewards are not useful anymore at that progression point
+
         public bool EnableModdedNPCs { get; set; } = true;
     }
 }

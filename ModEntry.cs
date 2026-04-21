@@ -255,6 +255,13 @@ namespace LoveFestival
             );
             configMenu.AddNumberOption(
                 mod: this.ModManifest,
+                name: () => I18n.Config_NpcLimit(),
+                tooltip: () => I18n.Config_NpcLimitDescription(),
+                getValue: () => Config.NpcLimit,
+                setValue: value => Config.NpcLimit = value
+            );
+            configMenu.AddNumberOption(
+                mod: this.ModManifest,
                 name: () => I18n.Config_ChancePerHeart(),
                 tooltip: () => I18n.Config_ChancePerHeartDescription(),
                 getValue: () => Config.ChancePerHeart,
@@ -494,10 +501,14 @@ namespace LoveFestival
         }
         public static string getMainEvent()
         {
+            instance.Monitor.Log($"Love Letters capped at: {Config.NpcLimit}");
             string commands = "";
             var shuffledNpcs = npcs.OrderBy(item => ModRandom.Next());
             foreach (NPC npc in shuffledNpcs)
             {
+
+                if (chosenLoveLetterGifters.Count >= Config.NpcLimit)
+                    break;
 
                 if (!Game1.player.friendshipData.ContainsKey(npc.Name) || npc.isMarriedOrEngaged() || !npc.CanSocialize || npc.Name == "Lewis" || npc.Name == "Marnie")
                     continue;
