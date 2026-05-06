@@ -72,6 +72,16 @@ namespace LoveFestival
 
         private bool hasSeenDate = false;
 
+        private static readonly HashSet<string> VanillaNPCs = new()
+        {
+            "Abigail", "Alex", "Caroline", "Clint", "Demetrius", "Dwarf",
+            "Elliott", "Emily", "Evelyn", "George", "Governor", "Gunther",
+            "Gus", "Haley", "Harvey", "Jas", "Jodi", "Kent", "Krobus",
+            "Leah", "Leo", "Lewis", "Linus", "Marnie", "Maru", "Pam",
+            "Penny", "Pierre", "Robin", "Sam", "Sandy", "Sebastian",
+            "Shane", "Vincent", "Willy", "Wizard"
+        };
+
         /*********
         ** Public methods
         *********/
@@ -512,6 +522,14 @@ namespace LoveFestival
 
                 if (!Game1.player.friendshipData.ContainsKey(npc.Name) || npc.isMarriedOrEngaged() || !npc.CanSocialize || npc.Name == "Lewis" || npc.Name == "Marnie")
                     continue;
+
+                if (!VanillaNPCs.Contains(npc.Name) && Config.EnableModdedNPCs)
+                {
+                    instance.Monitor.Log($"{npc.Name} is modded and modded NPCs are disabled in the config. Skipping...", LogLevel.Trace);
+                    continue;
+                }
+
+
                 Friendship fs = Game1.player.friendshipData[npc.Name];
                 int hearts = fs.Points / 250;
                 if (hearts < Config.MinRequiredHearts)
