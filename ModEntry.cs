@@ -107,6 +107,7 @@ namespace LoveFestival
             //helper.ConsoleCommands.Add("test_date", "Tests a Love Festival date.\n\nUsage: test_date <date_id>\n- date_id: the unique id of the date.\nThe NPC entered in the config will function as temporary actor. Feel free to change it. It may not work immediately after changing it in the config. Wait a few seconds until CP reloaded the token.", this.TestDate);
             helper.ConsoleCommands.Add("try_continue_event", "Goes to the next Event command. Try in case you get stuck during the event", this.TryContinueEvent);
             helper.ConsoleCommands.Add("test_multiplier", "Initialises a friendship multiplier for the corresponding NPC.\nThis was implemented for testing", this.test_multiplier);
+            helper.ConsoleCommands.Add("start_lovefest", "Starts the event. Useful for people using a mac device", this.StartEvent);
 
             spouseDialouges = GetSpouseDialogues();
 
@@ -323,6 +324,21 @@ namespace LoveFestival
         private void TryContinueEvent(string command, string[] args)
         {
             Game1.CurrentEvent.currentCommand++;
+        }
+
+        private void StartEvent(string command, string[] args)
+        {
+            if (!(Game1.season == Season.Winter && Game1.dayOfMonth == 6) && Game1.CurrentEvent != null)
+            {
+                Monitor.Log("This command only works during the Love Festival.");
+                return;
+            }
+
+            Event loveFestival = Game1.CurrentEvent;
+
+            loveFestival.forceFestivalContinue();
+            Monitor.Log("Starting event...");
+
         }
 
         private void test_multiplier(string command, string[] args)
