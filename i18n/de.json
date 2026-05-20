@@ -101,5 +101,7 @@
   "Config.TestDateActorName": "NPC-Name beim Testen von Dates",
   "Config.TestDateActorNameDescription": "Der Name des NPCs, der als Schauspieler fungieren soll, wenn du Dates ausprobieren möchtest. Du kannst diese Einstellung ignorieren, wenn du diese nicht benutzen wirst.",
   "Config.MoneyLetterPulsating": "Schicker Geldbrief",
-  "Config.MoneyLetterPulsatingDescription": "Die Farbe der Schrift des Geldes wird in verschiedenen Farben pulsieren"
+  "Config.MoneyLetterPulsatingDescription": "The color of the money amount of the money letter will pulsate in colors.",
+  "Config.EnableAllNPCs": "Alle Bewohner aktivieren",
+  "Config.EnableAllNPCsDescription": "Fuegt gemoddede Bewohner zum Event hinzu\nHINWEIS: Kann zu Fehlern fuehren"
 }

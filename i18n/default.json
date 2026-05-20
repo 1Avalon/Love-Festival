@@ -105,7 +105,9 @@
   "Config.ChancePerHeart": "Chance per heart (in %)",
   "Config.ChancePerHeartDescription": "The chance of receiving a letter from an NPC. Each heart will increase the chance by x percent (e.g. 6 hearts, 10% for each heart = 60% chance to receive a letter from the NPC)",
   "Config.MoneyLetterPulsating": "Fancy Money Letter",
-  "Config.MoneyLetterPulsatingDescription": "The color of the money amount of the money letter will pulsate in colors."
+  "Config.MoneyLetterPulsatingDescription": "The color of the money amount of the money letter will pulsate in colors.",
+  "Config.EnableAllNPCs": "Enable all NPCs",
+  "Config.EnableAllNPCsDescription": "Includes modded NPCs to the Event.\nNOTE: Bugs can occur",
   "Config.NpcLimit": "NPC Limit",
   "Config.NpcLimitDescription": "Caps the amount of love letters being handed to the farmer. You may adjust this when the festival consumes too much time and the rewards are no longer from use"
 }
