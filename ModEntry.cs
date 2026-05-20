@@ -642,7 +642,7 @@ namespace LoveFestival
                 ["name"] = I18n.Festival_Name(),
                 ["conditions"] = "Town/900 1400",
                 ["set-up"] = "musicboxsong/-1000 -1000/farmer 1 54 2/changeToTemporaryMap LoveFestivalMap/loadActors Set-Up/animate Robin false true 500 20 21 20 22/animate Demetrius false true 500 24 25 24 26/playerControl LoveFestival17819/globalFadeToClear",
-                ["mainEvent"] = $"pause 500/globalFade/viewport -1000 -1000/warp farmer 39 22/faceDirection farmer 2/warp Marnie 38 22/faceDirection Marnie 2/warp Lewis 40 22/faceDirection Lewis 2/viewport 39 22 true/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end",
+                ["mainEvent"] = $"pause 500/globalFade/viewport -1000 -1000/warp farmer 39 22/stopAnimation Robin/stopAnimation Demetrius/faceDirection farmer 2/warp Marnie 38 22/faceDirection Marnie 2/warp Lewis 40 22/faceDirection Lewis 2/viewport 39 22 true/pause 1500/speak Marnie \"{I18n.MarnieReaction_Start()}\"LoveFestival17819command/waitForOtherPlayers festivalEnd/end",
             };
             foreach (var translation in Helper.Translation.GetTranslations())
             {
