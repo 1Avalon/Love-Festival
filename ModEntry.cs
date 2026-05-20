@@ -68,10 +68,6 @@ namespace LoveFestival
 
         public static NetworkDataManager networkDataManager;
 
-        private static bool hasDateContentPacks = false;
-
-        private bool hasSeenDate = false;
-
         private static readonly HashSet<string> VanillaNPCs = new()
         {
             "Abigail", "Alex", "Caroline", "Clint", "Demetrius", "Dwarf",
@@ -336,12 +332,6 @@ namespace LoveFestival
         }
         private void OnGameSaved(object sender, SavedEventArgs e)
         {
-            if (hasSeenDate && Context.IsMainPlayer)
-            {
-                Helper.Data.WriteSaveData<DateLetter>("DateLetter", null);
-                Logger.Log_Trace("Cleared data Data...");
-                hasSeenDate = false;
-            }
             if (multiplier != null && Game1.Date.DayOfMonth < multiplier.expiresAt && !Context.IsMainPlayer) //More consistent
             {
                 Helper.Data.WriteSaveData("Multiplier", multiplier);
@@ -485,12 +475,6 @@ namespace LoveFestival
         }
         public static string getRandomLetterDialogue()
         {
-
-            if (!hasDateContentPacks && reactions.Contains(I18n.NpcGiftingLetter_AskForDate()))
-            {
-                reactions.Remove(I18n.NpcGiftingLetter_AskForDate());
-            }
-
             int index = ModRandom.Next(0, reactions.Count);
             return reactions[index];
         }
@@ -649,10 +633,6 @@ namespace LoveFestival
                     data["VEInvitationLetterWeek"] = I18n.Letter_WeekBefore();
                     data["VEInvitationLetterTomorrow"] = I18n.Letter_NextDay();
                 });
-            }
-            else if (e.NameWithoutLocale.IsEquivalentTo(modDateEntryKey))
-            {
-                e.LoadFrom(() => new Dictionary<string, ModDate>(), AssetLoadPriority.Exclusive);
             }
         }
         private IDictionary<string, string> FestivalData()
